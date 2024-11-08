@@ -1,0 +1,158 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+}
+
+.general-title {
+    font-size: 3em;
+    margin-bottom: 40px;
+    color: #333;
+}
+
+.flip {
+    display: inline-block;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.flip:hover {
+    transform: rotateY(360deg);
+}
+
+.container {
+    max-width: 1400px; /* Increase the maximum width */
+    min-height: 800px; /* Set a minimum height */
+    padding: 60px; /* Increase padding for more space inside the container */
+    background-color: white;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    position: relative; /* Add position relative to contain absolutely positioned elements */
+    transition: transform 0.3s ease; /* Add transition for smooth scaling */
+}
+
+.container:hover {
+    transform: scale(1.08); /* Scale the container to 105% on hover */
+}
+
+.banner {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.banner-img {
+    max-width: 200px;
+    margin-bottom: 20px;
+    transition: transform 0.3s ease; /* Add transition for smooth scaling */
+}
+
+.banner-img:hover {
+    transform: scale(1.2); /* Scale the image to 120% on hover */
+}
+
+.centered-img:hover {
+    transform: scale(1.2); /* Scale the image to 120% on hover */
+}
+
+.centered-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.centered-img {
+    max-width: 20%;
+    height: auto;
+}
+
+h1 {
+    font-size: 2.5em;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.tab {
+    padding: 30px 40px; /* Increase padding for larger tabs */
+    margin: 10px;
+    background-color: #134813;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 1.8em; /* Increase font size */
+    font-weight: bold; /* Add bold font */
+    transition: background-color 0.3s, transform 0.3s;
+    flex: 1 1 calc(33.333% - 40px); /* Adjust the width of the tabs */
+    box-sizing: border-box;
+    animation: highlight 16s infinite; /* Add animation */
+}
+
+.tab:hover {
+    background-color: #134813;
+    transform: scale(1.10);
+}
+
+.tab:active {
+    background-color: #134813;
+}
+
+/* New styles for the top-right image */
+.top-right-container {
+    position: absolute;
+    bottom: 0px; /* Add some distance from the top border */
+    left: 10px; /* Add some distance from the right border */
+    padding: 10px; /* Optional: Add some padding around the image */
+}
+
+.top-right-img {
+    width: 150px; /* Adjust the width as needed */
+    height: auto;
+}
+
+.bottom-right-container {
+    position: absolute;
+    bottom: 0px; /* Add some distance from the top border */
+    right: 10px; /* Add some distance from the right border */
+    padding: 10px; /* Optional: Add some padding around the image */
+}
+
+.bottom-right-img {
+    width: 150px; /* Adjust the width as needed */
+    height: auto;
+}
+
+/* Keyframes for the highlight animation
+@keyframes highlight {
+    0%, 100% { background-color: #134813; }
+    12.5%, 25% { background-color: #1e6b1e; }
+    37.5%, 50% { background-color: #134813; }
+    62.5%, 75% { background-color: #1e6b1e; }
+    87.5% { background-color: #134813; }
+}
+
+/* Specific timing for each tab */
+/* .tabs .tab:nth-child(1) { animation-delay: 0s; }
+.tabs .tab:nth-child(2) { animation-delay: 2s; }
+.tabs .tab:nth-child(3) { animation-delay: 4s; }
+.tabs .tab:nth-child(4) { animation-delay: 6s; }
+.tabs .tab:nth-child(5) { animation-delay: 8s; }
+.tabs .tab:nth-child(6) { animation-delay: 10s; }
+.tabs .tab:nth-child(7) { animation-delay: 12s; }
+.tabs .tab:nth-child(8) { animation-delay: 14s; } */ 
