@@ -14,7 +14,8 @@ import geopandas as gpd
 import pandas as pd
 import math
 from shapely.geometry import Polygon
-import json
+
+
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('rasterio').setLevel(logging.WARNING)  # Suppress rasterio debug messages
@@ -200,49 +201,6 @@ def save_field_trial():
     logging.info("GeoDataFrame has been created successfully.")
 
     return jsonify({"message": "Field trial data received and printed to terminal.", "geojson": geojson})
-
-def save_edited_object():
-    try:
-        data = request.get_json()
-        print('Received data:', data)
-        
-        ortho = data['ortho']
-        original_ortho_path = data['original_ortho_path']
-        edited_object = data['object']
-
-        # Check if original_ortho_path is None
-        if original_ortho_path is None:
-            raise ValueError("original_ortho_path is None")
-
-        # Convert the edited object to a GeoDataFrame
-        gdf = gpd.GeoDataFrame.from_features(edited_object['features'])
-
-        # Ensure the GeoDataFrame has a CRS set
-        if gdf.crs is None:
-            gdf.set_crs("EPSG:4326", inplace=True)
-
-        # Reproject the GeoDataFrame to EPSG:32616
-        gdf = gdf.to_crs("EPSG:32616")
-
-        # Extract the base name from original_ortho_path (excluding the .tif end)
-        base_name = os.path.splitext(original_ortho_path)[0]
-
-        # Save the GeoDataFrame as GeoJSON
-        geojson_path = f"{base_name}.geojson"
-        gdf.to_file(geojson_path, driver='GeoJSON')
-
-        # Save the GeoDataFrame as Shapefile
-        shp_path = f"{base_name}.shp"
-        gdf.to_file(shp_path, driver='ESRI Shapefile')
-
-        return jsonify({"message": "Edited object saved successfully.", "geojson_path": geojson_path, "shp_path": shp_path})
-
-    except Exception as e:
-        print('Error:', str(e))
-        return jsonify({"error": str(e)}), 500
-    
-
-
 
 def save_gdf():
     try:

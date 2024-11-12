@@ -4,9 +4,8 @@ from flask import Flask, send_from_directory, jsonify, request
 import os
 import tempfile
 import logging
-from polycreator import process_files, save_field_trial, save_gdf, save_edited_object
-import json
-import geopandas as gpd
+from polycreator import process_files, save_field_trial, save_gdf
+
 BASE_DIRECTORY = "D:/OneDrive - University of Illinois - Urbana/TF/PYTHON_CODE/G_E_PROJECT/data/images"
 
 app = Flask(__name__)
@@ -40,10 +39,6 @@ def create_field_trial():
 @app.route('/save-gdf', methods=['POST'])
 def save_gdf_route():
     return save_gdf()
-
-@app.route('/save-edited-object', methods=['POST'])
-def save_edited_object_route():
-    return save_edited_object()
 
 @app.route('/<path:path>')
 def static_files(path):

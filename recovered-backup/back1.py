@@ -1,12 +1,11 @@
 
-
+    
 from flask import Flask, send_from_directory, jsonify, request
 import os
 import tempfile
 import logging
-from polycreator import process_files, save_field_trial, save_gdf, save_edited_object
-import json
-import geopandas as gpd
+from shiftcorrector import process_files, collect_marks
+
 BASE_DIRECTORY = "D:/OneDrive - University of Illinois - Urbana/TF/PYTHON_CODE/G_E_PROJECT/data/images"
 
 app = Flask(__name__)
@@ -18,7 +17,7 @@ logging.getLogger('flask_cors').setLevel(logging.WARNING)  # Suppress flask_cors
 
 @app.route('/')
 def index():
-    return send_from_directory('templates', 'polycreator.html')
+    return send_from_directory('templates', 'shiftcorrector.html')
 
 @app.route('/process_images', methods=['POST'])
 def process_images_route():
@@ -32,22 +31,13 @@ def process_images_route():
 def serve_file(filename):
     return send_from_directory(tempfile.gettempdir(), filename)
 
-
-@app.route('/create_field_trial', methods=['POST'])
-def create_field_trial():
-    return save_field_trial()
-
-@app.route('/save-gdf', methods=['POST'])
-def save_gdf_route():
-    return save_gdf()
-
-@app.route('/save-edited-object', methods=['POST'])
-def save_edited_object_route():
-    return save_edited_object()
+@app.route('/collect_marks', methods=['POST'])
+def collect_marks_route():
+    return collect_marks()
 
 @app.route('/<path:path>')
 def static_files(path):
     return send_from_directory('templates', path)
 
 if __name__ == '__main__':
-    app.run(port=5002, debug=True)
+    app.run(port=5001, debug=True)

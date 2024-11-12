@@ -48,7 +48,8 @@
                 <select id="ortho-select" class="tab"></select>
                 <button id="zoom-button" class="tab">Zoom to Active Layer</button>
                 <button id="reset-button" class="tab">Reset Marks</button>
-                <button id="save-edited-object-button" class="tab">Save Edited Object</button>
+                <button id="rotate-button" class="tab">Rotate Selected Polygons</button>
+                <button id="relocate-button" class="tab">Relocate Selected Polygons</button>
                 <div id="layers-panel">
                     <h3 class="hidden">Loaded PNGs</h3>
                     <ul id="layers-list"></ul>
@@ -104,7 +105,8 @@
     </div>
 
     <script>
-
+        let initialCorner = null;
+        let directionPoint = null;
 
         var map1 = L.map('map1').setView([20, 0], 2);
 
@@ -306,7 +308,24 @@
             }
         });
 
-        
+        // Add event listeners for rotate and relocate buttons
+        document.getElementById('rotate-button').addEventListener('click', function() {
+            var angle = prompt("Enter rotation angle in degrees:");
+            if (angle !== null) {
+                rotatePolygons(parseFloat(angle));
+            }
+        });
+
+        document.getElementById('relocate-button').addEventListener('click', function() {
+            var dx = prompt("Enter relocation distance in x direction:");
+            var dy = prompt("Enter relocation distance in y direction:");
+            if (dx !== null && dy !== null) {
+                relocatePolygons(parseFloat(dx), parseFloat(dy));
+            }
+        });
+
+        // Call the function to enable polygon selection
+        selectPolygons();
 
     
         // Enable Leaflet.pm controls
@@ -360,11 +379,7 @@
         });
 
 
-        var geojsonLayer = null; // This will hold the GeoJSON layer
-        var editedObject = {}; // This will hold the edited object
-        var initialCorner = null;
-        var directionPoint = null;
-
+        // Capture initial corner and direction points
         document.getElementById('capture-coords-button').addEventListener('click', function() {
             map1.on('click', function(e) {
                 if (!initialCorner) {
@@ -380,59 +395,6 @@
             });
         });
 
-        // Function to load the GeoDataFrame object into the map view
-        function loadGdfObject(geojson) {
-            console.log('Received GeoJSON:', geojson);
-
-            // Clear the existing GeoJSON layer if it exists
-            if (geojsonLayer) {
-                map1.removeLayer(geojsonLayer);
-            }
-
-            // Load the GeoJSON into the map view (assuming you are using Leaflet)
-            geojsonLayer = L.geoJSON(JSON.parse(geojson), {
-                onEachFeature: function (feature, layer) {
-                    layer.on('pm:edit', function (e) {
-                        console.log('Feature edited:', e.target.feature);
-                        updateEditedObject(e.target.feature, feature.id);
-                    });
-                }
-            }).addTo(map1);
-
-            // Set the CRS on the GeoJSON layer
-            geojsonLayer.options.crs = L.CRS.EPSG4326; // <-- Added this line
-
-            // Enable editing on the layer
-            geojsonLayer.eachLayer(function (layer) {
-                layer.pm.enable();
-            });
-
-            // Log the initial state of the geojsonLayer
-            console.log('Initial geojsonLayer:', geojsonLayer.toGeoJSON());
-        }
-
-  
-        // Function to update the edited object
-        function updateEditedObject(editedFeature, originalId) {
-            // Find and replace the edited feature in the GeoJSON object
-            var geojson = geojsonLayer.toGeoJSON();
-            for (var i = 0; i < geojson.features.length; i++) {
-                if (geojson.features[i].id === originalId) {
-                    // Merge the properties of the original feature with the updated geometry
-                    geojson.features[i].geometry = editedFeature.geometry;
-                    geojson.features[i].id = originalId; // Ensure the original ID is retained
-                    break;
-                }
-            }
-            editedObject = geojson;
-            editedObject.crs = {
-                type: "name",
-                properties: {
-                    name: "EPSG:4326"
-                }
-            }; // <-- Added this block to explicitly define CRS
-            console.log('Updated edited object:', editedObject);
-        }
 
         // Submit form data
         document.getElementById('submit-button').addEventListener('click', function() {
@@ -489,8 +451,10 @@
                     success: function(response) {
                         alert('Field trial created successfully.');
 
-                        // Add the GeoJSON data to the map using loadGdfObject
-                        loadGdfObject(response.geojson);
+                        // Add the GeoJSON data to the map
+                        const geojsonLayer = L.geoJSON(JSON.parse(response.geojson));
+                        geojsonLayer.addTo(map1);
+                        map1.fitBounds(geojsonLayer.getBounds());
 
                         // Reset the markers
                         resetMarkers();
@@ -503,65 +467,6 @@
                 alert('Form submission canceled.');
             }
         });
-
-        // Save edited object
-        document.getElementById('save-edited-object-button').addEventListener('click', function() {
-            // Retrieve the edited object
-            var editedObject = getEditedObject();
-
-            // Check if originalReferenceOrthoPath is null
-            if (!originalReferenceOrthoPath) {
-                alert('Original ortho path is not set.');
-                return;
-            }
-
-            // Prepare the data to be sent to the backend
-            var data = {
-                ortho: activeReferenceOrtho,
-                original_ortho_path: originalReferenceOrthoPath,
-                object: editedObject
-            };
-
-            // Log the data to be sent
-            console.log('Data to be sent:', data);
-
-            // Send the data to the backend using an AJAX request
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/save-edited-object', true);
-            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    console.log('Response status:', xhr.status);
-                    console.log('Response text:', xhr.responseText);
-                    if (xhr.status === 200) {
-                        alert('Object saved successfully!');
-                    } else {
-                        alert('Error saving object.');
-                    }
-                }
-            };
-            xhr.send(JSON.stringify(data));
-        });
-
-        function getEditedObject() {
-            // Return the actual edited object
-            if (geojsonLayer) {
-                console.log('GeoJSON Layer:', geojsonLayer.toGeoJSON());
-            } else {
-                console.log('GeoJSON Layer is not set.');
-            }
-            return geojsonLayer ? geojsonLayer.toGeoJSON() : {};
-        }
-
-        function resetMarkers() {
-            initialCorner = null;
-            directionPoint = null;
-            map1.eachLayer(function(layer) {
-                if (layer instanceof L.Marker) {
-                    map1.removeLayer(layer);
-                }
-            });
-        }
 
         // Define a custom icon for the dot markers
         const dotIcon = L.divIcon({
@@ -595,7 +500,10 @@
                 }
             });
         }
-    
+        
+
+        
+
     </script>
 </body>
 </html>
