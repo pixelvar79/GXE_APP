@@ -1,12 +1,10 @@
 
-from plotvisualizer import process_files, extract_statistics, process_selected_polygons
-import json
-import geopandas as gpd
+from plotvisualizer import process_images, list_geojson_files, reprojected_geojson, process_selected_polygons, extract_statistics
+
 import os
 from flask import Flask, request, jsonify, send_from_directory
 import logging
 import tempfile
-import pandas as pd
 
 BASE_DIRECTORY = "D:/OneDrive - University of Illinois - Urbana/TF/PYTHON_CODE/G_E_PROJECT/data/images"
 
@@ -22,35 +20,29 @@ def index():
     return send_from_directory('templates', 'plotvisualizer.html')
 
 @app.route('/list-geojson-files', methods=['GET'])
-def list_geojson_files():
-    geojson_files = []
-    for root, dirs, files in os.walk(BASE_DIRECTORY):
-        for file in files:
-            if file.endswith('_shifted.geojson'):
-                relative_path = os.path.relpath(os.path.join(root, file), BASE_DIRECTORY)
-                geojson_files.append(relative_path)
-    return jsonify(geojson_files)
+def list_geojson_files_route():
+    return list_geojson_files()
 
 @app.route('/reprojected-geojson/<path:filepath>', methods=['GET'])
-def reprojected_geojson(filepath):
-    file_path = os.path.join(BASE_DIRECTORY, filepath)
-    if not os.path.exists(file_path):
-        return jsonify({"error": "File not found"}), 404
-
-    gdf = gpd.read_file(file_path)
-    gdf = gdf.to_crs("EPSG:4326")
-    return jsonify(gdf.__geo_interface__)
+def reprojected_geojson_route(filepath):
+    return reprojected_geojson(filepath)
 
 @app.route('/process_images', methods=['POST'])
-def process_images():
-    input_folder = request.form['input_folder']
-    full_path = os.path.join(BASE_DIRECTORY, input_folder)
-    results = process_files(full_path)
-    return jsonify(results)
+def process_images_route():
+    return process_images()
 
 @app.route('/process-selected-polygons', methods=['POST'])
 def process_selected_polygons_route():
     return process_selected_polygons()
+
+@app.route('/extract-statistics', methods=['POST'])
+def extract_statistics_route():
+    data = request.get_json()
+    tif_file = data['tif_file']
+    shp_file = data['shp_file']
+    order_ids = data['order_ids']
+    statistics = extract_statistics(tif_file, shp_file, order_ids)
+    return jsonify(statistics)
 
 @app.route('/temp/<filename>')
 def serve_file(filename):
