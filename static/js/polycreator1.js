@@ -44,8 +44,6 @@ var createdGeoJSON = null; // Variable to store the created GeoJSON
 
 
 
-
-
 // Function to load the GeoDataFrame object into the map view
 function loadGdfObject(geojson) {
     console.log('Received GeoJSON:', geojson);
