@@ -1,0 +1,388 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Leaflet Multi-Polygon Selection, Move, and Rotate</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
+  <style>
+    #map { width: 100%; height: 600px; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
+  <script src="https://unpkg.com/@turf/turf"></script>
+  
+  <script>
+    // Initialize the map centered at New York City
+    var map = L.map('map').setView([40.7128, -74.0060], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+
+    // Define GeoJSON data with five polygons over New York City
+    var geojsonData = {
+      "type": "FeatureCollection",
+      "features": [
+        { "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[-74.010, 40.705], [-74.000, 40.705], [-74.000, 40.710], [-74.010, 40.710], [-74.010, 40.705]]] } },
+        { "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[-73.990, 40.720], [-73.980, 40.720], [-73.980, 40.725], [-73.990, 40.725], [-73.990, 40.720]]] } },
+        { "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[-73.970, 40.735], [-73.960, 40.735], [-73.960, 40.740], [-73.970, 40.740], [-73.970, 40.735]]] } },
+        { "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[-73.950, 40.750], [-73.940, 40.750], [-73.940, 40.755], [-73.950, 40.755], [-73.950, 40.750]]] } },
+        { "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[-74.000, 40.750], [-73.990, 40.750], [-73.990, 40.755], [-74.000, 40.755], [-74.000, 40.750]]] } }
+      ]
+    };
+
+    var selectedPolygons = [];  // Array to store selected polygons
+    var initialClickPos = null; // Store initial click position for moving
+    var targetClickPos = null; // Store target click position for moving
+    var originalCoords = [];   // Store the original coordinates of the selected polygons
+
+    // Add GeoJSON layer and make each polygon selectable
+    var geojsonLayer = L.geoJSON(geojsonData, {
+      onEachFeature: function (feature, layer) {
+        layer.on('click', function (e) {
+          selectPolygon(layer);
+        });
+      },
+      style: { color: 'blue' }  // Default color
+    }).addTo(map);
+
+    // Ensure the map automatically zooms to fit all features in the view
+    geojsonLayer.on('add', function () {
+      map.fitBounds(geojsonLayer.getBounds());
+    });
+
+    // Function to select or deselect a polygon
+    function selectPolygon(layer) {
+      if (!selectedPolygons.includes(layer)) {
+        selectedPolygons.push(layer);  // Add to selected polygons
+        originalCoords.push(layer.getLatLngs()[0]);  // Store original coordinates
+        layer.setStyle({ color: 'red' });  // Highlight selected polygon
+        console.log('Polygon Selected:', layer.getLatLngs());
+      } else {
+        selectedPolygons = selectedPolygons.filter(l => l !== layer); // Remove from selected polygons
+        originalCoords = originalCoords.filter(coords => coords !== layer.getLatLngs()[0]); // Remove original coordinates
+        layer.setStyle({ color: 'blue' });  // Reset color to default
+        console.log('Polygon Deselected:', layer.getLatLngs());
+      }
+    }
+
+    // Handle the first left-click to store the initial position of the polygon(s)
+    map.on('click', function (e) {
+      if (selectedPolygons.length > 0) {
+        if (!initialClickPos) {
+          // Store the initial click position when the user clicks on a selected polygon
+          initialClickPos = e.latlng;
+          console.log('Initial Click Position:', initialClickPos);
+        } else {
+          // Store the target click position on the second click
+          targetClickPos = e.latlng;
+          console.log('Target Click Position:', targetClickPos);
+
+          // Calculate displacement between initial and target click
+          var displacement = calculateDisplacement(initialClickPos, targetClickPos);
+          console.log('Displacement (dx, dy):', displacement);
+
+          // Move the selected polygons
+          moveSelectedPolygons(displacement.dx, displacement.dy);
+
+          // Reset initial click position for next move
+          initialClickPos = null;
+          targetClickPos = null; // Clear target position
+        }
+      }
+    });
+
+    // Correct displacement calculation
+    function calculateDisplacement(initialPos, targetPos) {
+        // Longitude (dx): moving east (positive), west (negative)
+        const dx = targetPos.lng - initialPos.lng;  
+
+        // Latitude (dy): moving north (positive), south (negative)
+        const dy = initialPos.lat - targetPos.lat;  
+
+        console.log(`Initial Click Position: ${initialPos}`);
+        console.log(`Target Click Position: ${targetPos}`);
+        console.log(`Displacement (dx, dy): {dx: ${dx}, dy: ${dy}}`);
+
+        return { dx, dy };
+    }
+
+    // Function to move the selected polygons based on displacement
+    // Function to handle the polygon move and reset states
+    function moveSelectedPolygons(dx, dy) {
+        if (selectedPolygons.length > 0) {
+            selectedPolygons.forEach(function (layer, index) {
+            // Get the original coordinates of the polygon's vertices
+            var originalCoords = layer.getLatLngs()[0]; // Get the first (and only) ring (polygon vertices)
+
+            // Log the original coordinates for debugging
+            console.log(`Original Coordinates of Polygon ${index}:`, originalCoords);
+
+            // Move each selected polygon by the calculated displacement
+            var movedCoords = originalCoords.map(function (coord) {
+                // Apply dx (displacement in longitude) and dy (displacement in latitude)
+                const newLng = coord.lng + dx;  // Apply dx to longitude
+                const newLat = coord.lat - Math.abs(dy);  // Apply negative dy to latitude (subtracting)
+
+                // Print the newLng and newLat values for debugging
+                console.log(`New Position - Latitude: ${newLat}, Longitude: ${newLng}`);
+
+                // Check if new coordinates are valid
+                if (isNaN(newLng) || isNaN(newLat)) {
+                console.error(`Invalid coordinates: Lat: ${newLat}, Lng: ${newLng}`);
+                }
+
+                return L.latLng(newLat, newLng);  // Return the new position as a LatLng object
+            });
+
+            // Log the new positions for debugging
+            movedCoords.forEach(function (coord, index) {
+                console.log(`New Position of Vertex ${index}: [Lat: ${coord.lat}, Lng: ${coord.lng}]`);
+            });
+
+            // Update the polygon's position with new coordinates
+            try {
+                layer.setLatLngs([movedCoords]);
+            } catch (error) {
+                console.error("Error updating polygon position:", error);
+            }
+            });
+
+            // Reset the selected polygons, initial click position, and target click position
+            selectedPolygons = [];
+            initialClickPos = null;
+            targetClickPos = null;
+
+            console.log("Resetting state for the next move.");
+  }
+}
+
+
+  </script>
+</body>
+</html>
+ -->
+ <!-- <!DOCTYPE html>
+ <html lang="en">
+ <head>
+   <meta charset="UTF-8">
+   <title>Leaflet Relocate Selected Polygons</title>
+   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+   <link rel="stylesheet" href="https://unpkg.com/leaflet-geoman/dist/leaflet-geoman.css" />
+   <style>
+     #map { width: 100%; height: 600px; }
+   </style>
+ </head>
+ <body>
+   <div id="map"></div>
+ 
+   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+   <script src="https://unpkg.com/leaflet-geoman/dist/leaflet-geoman.min.js"></script>
+   <script>
+     // Initialize the map centered on New York
+     var map = L.map('map').setView([40.7128, -74.0060], 13); // New York City coordinates
+ 
+     // Add OpenStreetMap tile layer
+     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+ 
+     // GeoJSON Data (FeatureCollection)
+     var geojsonData = {
+       "type": "FeatureCollection",
+       "features": [
+         { "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[-74.010, 40.705], [-74.000, 40.705], [-74.000, 40.710], [-74.010, 40.710], [-74.010, 40.705]]] } },
+         { "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[-73.990, 40.720], [-73.980, 40.720], [-73.980, 40.725], [-73.990, 40.725], [-73.990, 40.720]]] } },
+         { "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[-73.970, 40.735], [-73.960, 40.735], [-73.960, 40.740], [-73.970, 40.740], [-73.970, 40.735]]] } },
+         { "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[-73.950, 40.750], [-73.940, 40.750], [-73.940, 40.755], [-73.950, 40.755], [-73.950, 40.750]]] } },
+         { "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[-74.000, 40.750], [-73.990, 40.750], [-73.990, 40.755], [-74.000, 40.755], [-74.000, 40.750]]] } }
+       ]
+     };
+ 
+     // Add GeoJSON data to the map as polygons
+     L.geoJSON(geojsonData, {
+       onEachFeature: function (feature, layer) {
+         // Bind popups to each polygon
+         layer.bindPopup('Polygon Feature');
+         
+         // Add click event listener to each polygon
+         layer.on('click', function () {
+           console.log('Polygon clicked:', layer);
+           selectPolygon(layer);
+         });
+       }
+     }).addTo(map);
+ 
+     // Store selected polygons
+     var selectedPolygons = [];
+     var initialClickPos = null;
+     var targetClickPos = null;
+ 
+     // Function to select and deselect polygons
+     function selectPolygon(layer) {
+       console.log('selectPolygon called with layer:', layer);
+ 
+       if (!selectedPolygons.includes(layer)) {
+         selectedPolygons.push(layer);
+         console.log('Polygon added to selection:', layer);
+ 
+         // Change color to indicate selection
+         layer.setStyle({ color: 'red' }); // Change color to red when selected
+         console.log('Polygon color changed to red');
+       } else {
+         selectedPolygons = selectedPolygons.filter(l => l !== layer);
+         console.log('Polygon removed from selection:', layer);
+ 
+         // Change color back to original when deselected
+         layer.setStyle({ color: 'blue' }); // Change color back to blue
+         console.log('Polygon color changed back to blue');
+       }
+ 
+       console.log('Currently selected polygons:', selectedPolygons);
+     }
+ 
+     // Function to move selected polygons
+     function moveSelectedPolygons(dx, dy) {
+       selectedPolygons.forEach(function (layer) {
+         var originalCoords = layer.getLatLngs()[0];
+ 
+         // Apply the displacement (dx, dy) to each vertex of the polygon
+         var movedCoords = originalCoords.map(function (coord) {
+           const newLng = coord.lng + dx;
+           const newLat = coord.lat + dy; // Move north/south (dy)
+ 
+           console.log(`New Position - Latitude: ${newLat}, Longitude: ${newLng}`);
+           return L.latLng(newLat, newLng);
+         });
+ 
+         // Update the polygon's position
+         try {
+           layer.setLatLngs([movedCoords]);
+           console.log('Polygon moved to new coordinates:', movedCoords);
+         } catch (error) {
+           console.error("Error updating polygon position:", error);
+         }
+       });
+ 
+       // Reset the state after the move
+       selectedPolygons = [];
+       initialClickPos = null;
+       targetClickPos = null;
+ 
+       console.log("State reset after move.");
+     }
+ 
+     // Handle clicks on the map to move the polygons
+     map.on('click', function (e) {
+       console.log('Map clicked at:', e.latlng);
+ 
+       if (selectedPolygons.length > 0) {
+         if (!initialClickPos) {
+           initialClickPos = e.latlng;
+           console.log('Initial Click Position:', initialClickPos);
+         } else {
+           targetClickPos = e.latlng;
+           console.log('Target Click Position:', targetClickPos);
+ 
+           // Calculate displacement
+           var dx = targetClickPos.lng - initialClickPos.lng;
+           var dy = targetClickPos.lat - initialClickPos.lat;  // dy is already correct (south-to-north)
+           console.log('Displacement (dx, dy):', dx, dy);
+ 
+           // Move the polygons based on displacement
+           moveSelectedPolygons(dx, dy);
+ 
+           // Reset initial and target positions for the next move
+           initialClickPos = null;
+           targetClickPos = null;
+         }
+       }
+     });
+   </script>
+ </body>
+ </html> -->
+
+
+
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+   <meta charset="UTF-8">
+   <title>Leaflet-Geoman Polygon Relocation</title>
+   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+   <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" />
+   <style>
+     #map { width: 100%; height: 600px; }
+   </style>
+ </head>
+ <body>
+   <div id="map"></div>
+ 
+   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+   <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>  
+   <script>
+     console.log('Initializing map...');
+ 
+     // Initialize the map centered on New York
+     var map = L.map('map').setView([40.7128, -74.0060], 13); // New York City coordinates
+     console.log('Map initialized.');
+ 
+     // Add OpenStreetMap tile layer
+     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+     console.log('Tile layer added.');
+ 
+     // GeoJSON Data (Polygon Features)
+     var geojsonData = {
+       "type": "FeatureCollection",
+       "features": [
+         {
+           "type": "Feature",
+           "geometry": {
+             "type": "Polygon",
+             "coordinates": [
+               [
+                 [-74.010, 40.705],
+                 [-74.000, 40.705],
+                 [-74.000, 40.710],
+                 [-74.010, 40.710],
+                 [-74.010, 40.705]
+               ]
+             ]
+           }
+         }
+       ]
+     };
+     console.log('GeoJSON data defined:', geojsonData);
+ 
+     // Add GeoJSON data to the map as polygons with style
+     L.geoJSON(geojsonData, {
+       style: function (feature) {
+         return {
+           color: 'blue', // Set color to blue
+           weight: 2,     // Set border width
+           opacity: 1     // Set opacity to fully visible
+         };
+       }
+     }).addTo(map);
+     console.log('GeoJSON data added to map.');
+ 
+     // Initialize Geoman controls (edit mode enabled)
+     map.pm.addControls({
+       position: 'topright',
+       drawCircle: false,
+       drawMarker: false,
+       drawPolyline: false,
+       drawPolygon: true,  // Enable polygon drawing
+       editMode: true,     // Enable editing
+       deleteMode: true    // Enable deleting
+     });
+     console.log('Geoman controls added.');
+ 
+     // Log polygon creation
+     map.on('pm:create', function (e) {
+       console.log('Polygon Created:', e.layer);
+     });
+   </script>
+ </body>
+ </html>

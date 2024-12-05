@@ -1,0 +1,228 @@
+html, body {
+    overflow: hidden; /* Prevent scrolling */
+    height: 100%; /* Ensure the body takes the full height */
+    margin: 0; /* Remove default margin */
+    padding: 0; /* Remove default padding */
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f4f9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Align items to the top */
+    text-align: center;
+}
+
+.header {
+    width: 100%;
+    padding: 20px 0; /* Add padding to the top and bottom */
+    background-color: #f4f4f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    font-size: 2.9em;
+    margin: 0;
+    color: #333;
+    transition: transform 0.6s; /* Smooth transition for the flip */
+}
+
+h1:hover {
+    transform: rotateY(360deg); /* Flip animation on hover */
+}
+
+.container {
+    display: flex;
+    width: 100%;
+    height: calc(100vh - 80px); /* Adjust height to account for header */
+    padding: 20px; /* Add padding to the container */
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+    height: 100%; /* Ensure columns take full height */
+    padding: 10px; /* Add padding to each column container */
+}
+
+.left-column {
+    flex: 1;
+    height: 100%;
+    padding: 10px; /* Add padding to the left column */
+}
+
+.center-column {
+    flex: 1;
+    display: flex;
+    max-width: 1000px;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px; /* Add padding to the center column */
+    height: 100%; /* Ensure center column takes full height */
+    overflow: hidden; /* Prevent overflow */
+}
+
+.right-column {
+    flex: 1;
+    height: 100%; /* Full height */
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden; /* Prevent lateral scroll */
+    border: 1px solid #ccc; /* Add border to the entire right column */
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 10px; /* Add padding to the right column */
+}
+
+.controls, .form-container {
+    flex: 1;
+    padding: 20px;
+    background-color: #fff;
+    margin-bottom: 10px;
+    padding: 10px; /* Add padding to the next lower level divs */
+}
+
+.map {
+    flex: 1;
+    margin: 10px;
+    border: 1px solid #ccc;
+    height: 100%;
+    padding: 10px; /* Add padding to the map div */
+}
+
+.column h2 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.controls h2, .form-container h2 {
+    margin-bottom: 20px;
+}
+
+.tab {
+    padding: 10px 20px;
+    margin: 10px;
+    background-color: #134813;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 1em;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.3s;
+    cursor: pointer;
+    white-space: nowrap; /* Prevent text from wrapping */
+}
+
+.tab:hover {
+    background-color: #0f3b0f;
+    transform: scale(1.05);
+}
+
+.tab:active {
+    background-color: #0c2e0c;
+}
+
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    font-size: 1.5em;
+    color: #333;
+}
+
+.loading-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.8);
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 1.5em;
+    color: #333;
+    display: none; /* Initially hidden */
+    z-index: 1000;
+}
+
+.custom-marker {
+    background-color: red;
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}
+
+/* Increase the size of zoom controls and editing tools */
+.leaflet-control-zoom-in, .leaflet-control-zoom-out, .leaflet-draw-toolbar a {
+    font-size: 1.5em;
+    width: 36px;
+    height: 36px;
+}
+
+/* Form styling */
+.form-group {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.form-group label {
+    flex: 1;
+    text-align: left;
+}
+
+.form-group input, .form-group select {
+    flex: 1;
+    text-align: right;
+}
+
+.hidden {
+    display: none;
+}
+
+#layers-list {
+    display: none;
+}
+
+.custom-dot-icon {
+    cursor: crosshair;
+}
+
+.charts-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%; /* Ensure charts container takes full height */
+    padding: 10px; /* Add padding to the charts container */
+}
+
+.chart-container {
+    flex: 1;
+    position: relative; /* Ensure the chart container is positioned relative */
+    width: 100%;
+    height: 100%;
+}
+
+#resultChart, #histogramChart {
+    width: 80%;
+    height: 80%;
+    box-sizing: border-box; /* Ensure padding and border are included in the element's total width and height */
+}
+
+.custom-layer-control .leaflet-control-layers-overlays label {
+    text-align: left;
+}
