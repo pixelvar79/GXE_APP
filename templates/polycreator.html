@@ -1,112 +1,3 @@
-<!-- 
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Field Trial Creator</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" />  
-    <link rel="stylesheet" href="/static/css/styleshift.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-measure/dist/leaflet-measure.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-    <style>
-        .hidden {
-            display: none;
-        }
-        #layers-list {
-            display: none;
-        }
-        .custom-dot-icon {
-            cursor: crosshair;
-        }
-    </style>
-</head>
-<body>
-    <h1>Field Trial Creator</h1>
-    <div class="container">
-        <div class="column map-column">
-            <h2>Visualizer</h2>
-            <div id="map1" class="map">
-                <div id="loading-message1" class="loading-message">Loading data...</div>
-            </div>
-        </div>
-        <div class="controls-container">
-            <div class="column controls" id="automated-controls">
-                <h2>Files controller</h2>
-                <input type="file" id="folder-input" webkitdirectory directory multiple style="display: none;">
-                <button id="upload-button" class="tab">Set Input Folder</button>
-                <label for="ortho-select">Select Active Field Image</label>
-                <select id="ortho-select" class="tab"></select>
-                <button id="zoom-button" class="tab">Zoom to Active Layer</button>
-                <button id="reset-button" class="tab">Reset Marks</button>
-                <button id="reset-selected-button" class="tab">Reset Selection</button>
-                <button id="save-edited-object-button" class="tab">Save Edited Object</button>
-                <div id="layers-panel">
-                    <h3 class="hidden">Loaded PNGs</h3>
-                    <ul id="layers-list"></ul>
-                </div>
-                <button id="capture-coords-button" class="tab">Capture Initial and Direction Coordinates</button>
-            </div>
-            <div class="column form-container">
-                <h2>Field Trial Parameters</h2>
-                <form id="field-trial-form">
-                    <div class="form-group">
-                        <label for="plot-width">Plot Width:</label>
-                        <input type="number" id="plot-width" name="plot_width" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="plot-length">Plot Length:</label>
-                        <input type="number" id="plot-length" name="plot_length" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="plots-horizontal-gap">Plots Horizontal Gap:</label>
-                        <input type="number" id="plots-horizontal-gap" name="plots_horizontal_gap" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="plots-vertical-gap">Plots Vertical Gap:</label>
-                        <input type="number" id="plots-vertical-gap" name="plots_vertical_gap" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="num-polygons">Total Number of Polygons:</label>
-                        <input type="number" id="num-polygons" name="num_polygons" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="num-horizontal-polygons">Number of Horizontal Polygons:</label>
-                        <input type="number" id="num-horizontal-polygons" name="num_horizontal_polygons" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="plot-direction">Plot Direction:</label>
-                        <select id="plot-direction" name="plot_direction" required>
-                            <option value="vertical">Vertical</option>
-                            <option value="horizontal">Horizontal</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="num-blocks">Number of Blocks:</label>
-                        <input type="number" id="num-blocks" name="num_blocks">
-                    </div>
-                    <div class="form-group">
-                        <label for="alley-width">Alley Width:</label>
-                        <input type="number" id="alley-width" name="alley_width">
-                    </div>
-                    <button type="button" id="submit-button">Submit</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>  
-    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/leaflet-measure/dist/leaflet-measure.js"></script>
-    <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
-    <script src="/static/js/polycreator1.js"></script>
-</body>
-</html> -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -188,6 +79,21 @@
                                 <option value="vertical">Vertical</option>
                                 <option value="horizontal">Horizontal</option>
                             </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="reverse_plot_direction">Reverse Plot Direction:</label>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="reverse_plot_direction" name="reverse_plot_direction">
+                                <label class="form-check-label" for="reverse_plot_direction">Yes</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="multiblock_trial_design">Multi Block Trial:</label>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="multiblock_trial_design" name="multiblock_trial_design">
+                                <label class="form-check-label" for="multiblock_trial_design">Yes</label>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="num-blocks">Number of Blocks (n): </label>

@@ -44,7 +44,61 @@ var createdGeoJSON = null; // Variable to store the created GeoJSON
 
 
 
-// Function to load the GeoDataFrame object into the map view
+// // Function to load the GeoDataFrame object into the map view
+// function loadGdfObject(geojson) {
+//     console.log('Received GeoJSON:', geojson);
+
+//     // Clear the existing GeoJSON layer if it exists
+//     if (geojsonLayer) {
+//         map1.removeLayer(geojsonLayer);
+//     }
+
+//     // Load the GeoJSON into the map view
+//     geojsonLayer = L.geoJSON(JSON.parse(geojson), {
+//         onEachFeature: function (feature, layer) {
+//             layer.on('pm:edit', function (e) {
+//                 console.log('Feature edited:', e.target.feature);
+//                 updateEditedObject(e.target.feature, feature.id);
+//             });
+//         }
+//     }).addTo(map1);
+
+//     // Enable editing on the layer
+//     geojsonLayer.eachLayer(function (layer) {
+//         layer.pm.enable();
+//     });
+
+//     // Store the created GeoJSON
+//     createdGeoJSON = geojsonLayer.toGeoJSON();
+
+//     // Log the initial state of the geojsonLayer
+//     console.log('Initial geojsonLayer:', geojsonLayer.toGeoJSON());
+// }
+
+
+// function updateEditedObject(editedFeature, originalId) {
+//     console.log('Updating GeoJSON for feature:', editedFeature);
+
+//     var geojson = geojsonLayer.toGeoJSON();
+//     for (var i = 0; i < geojson.features.length; i++) {
+//         if (geojson.features[i].id === originalId) {
+//             geojson.features[i].geometry = editedFeature.geometry;
+//             geojson.features[i].id = originalId; // Ensure the original ID is retained
+//             break;
+//         }
+//     }
+
+//     createdGeoJSON = geojson;
+//     createdGeoJSON.crs = {
+//         type: "name",
+//         properties: {
+//             name: "EPSG:4326"
+//         }
+//     };
+
+//     console.log('Updated GeoJSON object:', createdGeoJSON);
+// }
+
 function loadGdfObject(geojson) {
     console.log('Received GeoJSON:', geojson);
 
@@ -56,6 +110,21 @@ function loadGdfObject(geojson) {
     // Load the GeoJSON into the map view
     geojsonLayer = L.geoJSON(JSON.parse(geojson), {
         onEachFeature: function (feature, layer) {
+            // Add mouseover event to display attributes
+            layer.on('mouseover', function (e) {
+                var popupContent = '<b>Attributes:</b><br>';
+                for (var key in feature.properties) {
+                    popupContent += key + ': ' + feature.properties[key] + '<br>';
+                }
+                layer.bindPopup(popupContent).openPopup(e.latlng);
+            });
+
+            // Add mouseout event to hide the popup
+            layer.on('mouseout', function (e) {
+                layer.closePopup();
+            });
+
+            // Preserve existing pm:edit event
             layer.on('pm:edit', function (e) {
                 console.log('Feature edited:', e.target.feature);
                 updateEditedObject(e.target.feature, feature.id);
@@ -74,7 +143,6 @@ function loadGdfObject(geojson) {
     // Log the initial state of the geojsonLayer
     console.log('Initial geojsonLayer:', geojsonLayer.toGeoJSON());
 }
-
 
 function updateEditedObject(editedFeature, originalId) {
     console.log('Updating GeoJSON for feature:', editedFeature);
@@ -465,12 +533,8 @@ function redrawPolygons() {
     console.log('Redrawn polygons with updated positions:', geojsonLayer.toGeoJSON());
 }
 
-
 // Add custom CSS for the custom drag icon and label
 const style = document.createElement('style');
-
-
-
 
 function getEditedObject() {
     // Return the actual edited object
@@ -613,18 +677,44 @@ document.getElementById('ortho-select').addEventListener('change', function() {
     }
 });
 
-var initialCorner = null;
-var directionPoint = null;
+// var initialCorner = null;
+// var directionPoint = null;
+
+// document.getElementById('capture-coords-button').addEventListener('click', function() {
+//     map1.on('click', function(e) {
+//         if (!initialCorner) {
+//             initialCorner = e.latlng;
+//             L.marker(initialCorner, { icon: dotIcon }).addTo(map1).bindPopup('Initial Corner').openPopup();
+//             alert('Initial corner set. Now click to set the direction point.');
+//         } else if (!directionPoint) {
+//             directionPoint = e.latlng;
+//             L.marker(directionPoint, { icon: dotIcon }).addTo(map1).bindPopup('Direction Point').openPopup();
+//             alert('Direction point set. Coordinates captured successfully.');
+//             map1.off('click'); // Remove the click event listener after capturing both points
+//         }
+//     });
+// });
+
+// // Function to reset markers
+// function resetMarkers() {
+//     initialCorner = null;
+//     directionPoint = null;
+//     console.log('Markers reset');
+//     // Additional code to remove markers from the map if needed
+// }
+
+var initialCornerMarker = null;
+var directionPointMarker = null;
 
 document.getElementById('capture-coords-button').addEventListener('click', function() {
     map1.on('click', function(e) {
         if (!initialCorner) {
             initialCorner = e.latlng;
-            L.marker(initialCorner, { icon: dotIcon }).addTo(map1).bindPopup('Initial Corner').openPopup();
+            initialCornerMarker = L.marker(initialCorner, { icon: dotIcon }).addTo(map1).bindPopup('Initial Corner').openPopup();
             alert('Initial corner set. Now click to set the direction point.');
         } else if (!directionPoint) {
             directionPoint = e.latlng;
-            L.marker(directionPoint, { icon: dotIcon }).addTo(map1).bindPopup('Direction Point').openPopup();
+            directionPointMarker = L.marker(directionPoint, { icon: dotIcon }).addTo(map1).bindPopup('Direction Point').openPopup();
             alert('Direction point set. Coordinates captured successfully.');
             map1.off('click'); // Remove the click event listener after capturing both points
         }
@@ -635,9 +725,21 @@ document.getElementById('capture-coords-button').addEventListener('click', funct
 function resetMarkers() {
     initialCorner = null;
     directionPoint = null;
+    if (initialCornerMarker) {
+        map1.removeLayer(initialCornerMarker);
+        initialCornerMarker = null;
+    }
+    if (directionPointMarker) {
+        map1.removeLayer(directionPointMarker);
+        directionPointMarker = null;
+    }
     console.log('Markers reset');
-    // Additional code to remove markers from the map if needed
 }
+
+// Reset markers
+document.getElementById('reset-button').addEventListener('click', function() {
+    resetMarkers();
+});
 
 // Submit form data
 document.getElementById('submit-button').addEventListener('click', function() {
@@ -651,6 +753,9 @@ document.getElementById('submit-button').addEventListener('click', function() {
     const plotDirection = document.getElementById('plot-direction').value;
     const numBlocks = document.getElementById('num-blocks').value;
     const alleyWidth = document.getElementById('alley-width').value;
+    const reversePlotDirection = document.getElementById('reverse_plot_direction').checked;
+    const multiBlockTrial = document.getElementById('multiblock_trial_design').checked;
+
 
     // Validate required fields
     if (!plotWidth || !plotLength || !plotsHorizontalGap || !plotsVerticalGap || !numPolygons || !numHorizontalPolygons || !plotDirection) {
@@ -676,7 +781,9 @@ document.getElementById('submit-button').addEventListener('click', function() {
         num_blocks: numBlocks,
         alley_width: alleyWidth,
         initial_corner: initialCorner ? `${initialCorner.lat},${initialCorner.lng}` : null,
-        direction_point: directionPoint ? `${directionPoint.lat},${directionPoint.lng}` : null
+        direction_point: directionPoint ? `${directionPoint.lat},${directionPoint.lng}` : null,
+        reverse_plot_direction: reversePlotDirection,
+        multiblock_trial_design: multiBlockTrial 
     };
 
     // Print form data for pre-check
@@ -761,10 +868,10 @@ document.getElementById('save-edited-object-button').addEventListener('click', f
     xhr.send(JSON.stringify(data));
 });
 
-// Reset markers
-document.getElementById('reset-button').addEventListener('click', function() {
-    resetMarkers();
-});
+// // Reset markers
+// document.getElementById('reset-button').addEventListener('click', function() {
+//     resetMarkers();
+// });
 
 // Reset selected polygons
 document.getElementById('reset-selected-button').addEventListener('click', function() {

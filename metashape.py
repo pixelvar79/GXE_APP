@@ -459,7 +459,7 @@ def process_metashape(input_dir, output_dir, log_messages):
         
         
         log(f"<b>Loading..</b> {len(chunk.cameras)} cameras")
-        chunk.matchPhotos(keypoint_limit=20000, tiepoint_limit=5000, reference_preselection=True)
+        chunk.matchPhotos(keypoint_limit=40000, tiepoint_limit=10000, reference_preselection=True)
         
         
         #log(f'<b>Aligning photos</b> in {project_folder} project')
@@ -512,12 +512,13 @@ def process_metashape(input_dir, output_dir, log_messages):
         output_report = os.path.join(output_project_directory, f"{project_folder}_report.pdf")
         chunk.exportReport(output_report)
 
-        # if chunk.elevation:
-        #     #log(f'<b>Exporting DEM</b> in {project_folder} project')
-        #     log(f'<b>Exporting DEM..</b>')
-        #     output_dtm = os.path.join(output_project_directory, f"{project_folder}_dtm.tif")
-        #     chunk.exportRaster(output_dtm, source_data=Metashape.ElevationData)
-        #     results.append({"type": "dtm", "path": output_dtm})
+        if chunk.elevation:
+            #log(f'<b>Exporting DEM</b> in {project_folder} project')
+            log(f'<b>Exporting DEM..</b>')
+            output_dtm = os.path.join(output_project_directory, f"{project_folder}_dtm.tif")
+            nodata_value = 0  # Specify your desired nodata value here
+            chunk.exportRaster(output_dtm, source_data=Metashape.ElevationData, nodata_value=nodata_value)
+            results.append({"type": "dtm", "path": output_dtm})
 
         if chunk.orthomosaic:
             #log(f'<b>Exporting ORTHO</b> in {project_folder} project')
@@ -597,12 +598,43 @@ def process_tif(tif_path):
                 bounds = reprojected_src.bounds  # Ensure we use reprojected bounds
                 logging.debug(f"Reprojected TIFF bounds: {bounds}")
 
-                # Read bands and normalize
+                # # Read bands and normalize
+                # if reprojected_src.count == 1:
+                #     data = reprojected_src.read(1)
+                #     clip_min, clip_max = np.percentile(data, (2, 98))
+                #     data = normalize_data(data, clip_min, clip_max)
+    
+                #     img = Image.fromarray(data, 'L')
+                
                 if reprojected_src.count == 1:
                     data = reprojected_src.read(1)
-                    clip_min, clip_max = np.percentile(data, (2, 98))
+                    clip_min, clip_max = np.percentile(data, (4, 90))
                     data = normalize_data(data, clip_min, clip_max)
+                    
+                    # Create an alpha channel where data is zero
+                    alpha = (data == 0).astype(np.uint8) * 255
+                    
+                    # Create the grayscale image
                     img = Image.fromarray(data, 'L')
+                    
+                    # Create the alpha image
+                    alpha_img = Image.fromarray(255 - alpha, 'L')
+                    
+                    # Combine the grayscale image with the alpha channel
+                    img.putalpha(alpha_img)
+                
+                # # Read bands and normalize
+                # if reprojected_src.count == 1:
+                #     data = reprojected_src.read(1)
+                #     clip_min, clip_max = np.percentile(data, (2, 98))
+                #     #data = normalize_data(data, clip_min, clip_max)
+                    
+                #     # Create an alpha channel where data is zero
+                #     alpha = (data == 0).astype(np.uint8) * 255
+                    
+                #     # Stack the data and alpha channel to create an RGBA image
+                #     img = np.dstack((data, data, data, 255 - alpha))
+                #     img = Image.fromarray(img, 'RGBA')
                 else:
                     data = reprojected_src.read([3, 2, 1])
                     clip_min, clip_max = np.percentile(data, (2, 98))
