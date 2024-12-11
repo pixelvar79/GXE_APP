@@ -38,14 +38,16 @@
                 <label for="ortho-select">Select Active Field Image</label>
                 <select id="ortho-select" class="tab"></select>
 
-                <button id="zoom-active" class="tab">Zoom to Active Layer Extent</button>
+                <!-- <button id="zoom-active" class="tab">Zoom to Active Layer Extent</button> -->
 
-                <button id="capture-coords-button" class="tab">Capture Initial and Direction Coordinates</button>
-                <button id="reset-button" class="tab">Reset Marks</button>
+                
 
                 <div class="column form-container">
                 
-                    <h2>Parameters of Field Trial Polygonal Layer</h2>
+                    <h2>Field Trial Settings</h2>
+
+                    <button id="capture-coords-button" class="tab">Capture Initial and Direction Coordinates</button>
+                    <button id="reset-button" class="tab">Reset Marks</button>
     
                     <form id="field-trial-form">
                         
@@ -58,11 +60,11 @@
                             <input type="number" id="plot-length" name="plot_length" required>
                         </div>
                         <div class="form-group">
-                            <label for="plots-horizontal-gap" class="tab">Horizontal Plots Gap (m):</label>
+                            <label for="plots-horizontal-gap" class="tab">Plots Horizontal Gaps (m):</label>
                             <input type="number" id="plots-horizontal-gap" name="plots_horizontal_gap" required>
                         </div>
                         <div class="form-group">
-                            <label for="plots-vertical-gap" class="tab">Vertical Plots Gap (m):</label>
+                            <label for="plots-vertical-gap" class="tab">Alleys (m):</label>
                             <input type="number" id="plots-vertical-gap" name="plots_vertical_gap" required>
                         </div>
                         <div class="form-group">
@@ -74,14 +76,14 @@
                             <input type="number" id="num-horizontal-polygons" name="num_horizontal_polygons" required>
                         </div>
                         <div class="form-group">
-                            <label for="plot-direction" class="tab">Plot ID Direction:</label>
+                            <label for="plot-direction" class="tab">Plot Label Direction: </label>
                             <select id="plot-direction" name="plot_direction" required>
                                 <option value="vertical">Vertical</option>
                                 <option value="horizontal">Horizontal</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="reverse_plot_direction">Reverse Plot Direction:</label>
+                        <!-- <div class="form-group">
+                            <label for="reverse_plot_direction">Want Serpentine Plot Label Direction:</label>
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="reverse_plot_direction" name="reverse_plot_direction">
                                 <label class="form-check-label" for="reverse_plot_direction">Yes</label>
@@ -89,20 +91,37 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="multiblock_trial_design">Multi Block Trial:</label>
+                            <label for="multiblock_trial_design">Is This a MultiBlock Field Trial? </label>
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="multiblock_trial_design" name="multiblock_trial_design">
                                 <label class="form-check-label" for="multiblock_trial_design">Yes</label>
                             </div>
-                        </div>
+                        </div> -->
                         <div class="form-group">
-                            <label for="num-blocks">Number of Blocks (n): </label>
+                            <label for="reverse_plot_direction" class="tab">Want Serpentine Plot Label Direction?</label>
+                            <select id="reverse_plot_direction" name="reverse_plot_direction" required>
+                                <option value="no">No</option>
+                                <option value="yes">Yes</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="multiblock_trial_design" class="tab">Is This a MultiBlock Field Trial? </label>
+                            <select id="multiblock_trial_design" name="multiblock_trial_design" required>
+                                <option value="no">No</option>
+                                <option value="yes">Yes</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="num-blocks" class= "tab">Number of Blocks (n): </label>
                             <input type="number" id="num-blocks" name="num_blocks">
                         </div>
                         <div class="form-group">
                             <label for="alley-width" class="tab">Blocks Alley Length (m):</label>
                             <input type="number" id="alley-width" name="alley_width">
-                        </div>
+                        </div> 
+                        
                         <button type="button" id="submit-button" class="tab">Create Polygonal Field Trial</button>
                     </form>
                 </div>
@@ -111,7 +130,7 @@
                     <h3 class="hidden">Loaded PNGs</h3>
                     <ul id="layers-list"></ul>
                 </div>
-                
+                <h2>Edit Created Layer</h2>
                 <button id="reset-selected-button" class="tab">Reset Selected polygons</button>
                 <button id="save-edited-object-button" class="tab">Save Edited Object</button>
             </div>

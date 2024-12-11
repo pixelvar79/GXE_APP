@@ -5,28 +5,28 @@ let dateColors = {}; // Global object to store colors for each Date_julian
 let allResults = null; // Global variable to store all plots data
 let selectedPlots = []; // Array to store selected plots' order ID and GeoJSON path
 
-// Function to get the dataset based on the selected trait
+
 function getSelectedDataset(result, trait) {
     const datasets = [];
 
     // Extract unique Date_julian values for labels
     const labels = [...new Set(result.map(item => String(item.Date_julian)))];
 
-    // Group data by Date_julian and plotID
-    const plotIDs = [...new Set(result.map(item => item.plotID))];
-    plotIDs.forEach(plotID => {
+    // Group data by Date_julian and barcode
+    const barCodes = [...new Set(result.map(item => item.barcode))];
+    barCodes.forEach(barCode => {
         const data = labels.map(date => {
-            const entry = result.find(item => String(item.Date_julian) === date && item.plotID === plotID);
+            const entry = result.find(item => String(item.Date_julian) === date && item.barcode === barCode);
             return entry ? entry[trait] : 0;
         });
-        if (!plotColors[plotID]) {
-            plotColors[plotID] = getRandomColor();
+        if (!plotColors[barCode]) {
+            plotColors[barCode] = getRandomColor();
         }
         datasets.push({
-            label: `Plot ${plotID}`,
+            label: `Plot ${barCode}`,
             data: data,
-            backgroundColor: plotColors[plotID] + '80', // Add transparency
-            borderColor: plotColors[plotID],
+            backgroundColor: plotColors[barCode] + '80', // Add transparency
+            borderColor: plotColors[barCode],
             borderWidth: 1,
             fill: false // Do not fill the area under the line
         });
@@ -34,7 +34,6 @@ function getSelectedDataset(result, trait) {
 
     return { labels, datasets };
 }
-
 
 function updateChart(result, yVariable = 'Band_6_max') {
     const ctx = document.getElementById('resultChart').getContext('2d');
@@ -124,6 +123,7 @@ function updateChart(result, yVariable = 'Band_6_max') {
             updateHistogramChart(allResults, yVariable);
         }
     }
+
 
 function updateHistogramChart(result, yVariable) {
         const ctx = document.getElementById('histogramChart').getContext('2d');
@@ -230,7 +230,7 @@ function updateHistogramChart(result, yVariable) {
                     x: {
                         title: {
                             display: true,
-                            text: 'Value Ranges',
+                            text: yVariableDisplayName,
                             font: {
                                 size: 16 // Increase font size of x-axis label
                             }
@@ -299,7 +299,6 @@ function getRandomColor() {
     return color;
 }
 
-
 document.addEventListener('DOMContentLoaded', function() {
     var map1 = L.map('map1').setView([20, 0], 2);
 
@@ -357,11 +356,29 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeEmptyCharts();
     };
 
+
     // Function to initialize empty charts
     function initializeEmptyCharts() {
         const ctxResult = document.getElementById('resultChart').getContext('2d');
         const ctxHistogram = document.getElementById('histogramChart').getContext('2d');
-
+    
+    
+        const emptyMessagePlugin = {
+            id: 'emptyMessage',
+            beforeDraw: function(chart) {
+                const ctx = chart.ctx;
+                const width = chart.width;
+                const height = chart.height;
+                ctx.save();
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.font = '16px Arial';
+                ctx.fillStyle = 'gray';
+                ctx.fillText('Load data for plotting', width / 2, height / 2);
+                ctx.restore();
+            }
+        };
+    
         window.resultChart = new Chart(ctxResult, {
             type: 'line',
             data: {
@@ -402,11 +419,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                 size: 14
                             }
                         }
-                    }
+                    },
+                    emptyMessage: emptyMessagePlugin
                 }
             }
         });
-
+    
         window.histogramChart = new Chart(ctxHistogram, {
             type: 'bar',
             data: {
@@ -445,11 +463,13 @@ document.addEventListener('DOMContentLoaded', function() {
                                 size: 14
                             }
                         }
-                    }
+                    },
+                    emptyMessage: emptyMessagePlugin
                 }
             }
         });
     }
+    
 
     // Function to handle file upload
     document.getElementById('upload-button').addEventListener('click', function() {
@@ -482,11 +502,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     const baseName = item.ortho_path.split('/').pop();
                     // Split the base name by underscores and extract the second and third strings
                     const parts = baseName.split('_');
-                    const displayName = parts[1] + '_' + parts[2];
+                    const displayName = parts[2] + '_' + parts[3];
     
                     const option = new Option(displayName, item.ortho_path);
                     $(option).data('original-ortho-path', item.original_ortho_path);
                     $('#ortho-select').append(option);
+                    layer.fullPath = item.ortho_path;
                     layerControl1.addOverlay(layer, displayName);
                 }
             });
@@ -497,31 +518,79 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
 
-
-
     // Dropdown selectors for ortho images
     document.getElementById('ortho-select').addEventListener('change', function() {
         activeReferenceOrtho = this.value;
         const selectedOption = $('#ortho-select option:selected');
         originalReferenceOrthoPath = selectedOption.data('original-ortho-path');
 
+        // Debugging: Log the activeReferenceOrtho
+        console.log('Selected ortho:', activeReferenceOrtho);
+
+        // Print all layers' full paths for debugging
+        console.log('All layers in layerControl1:');
+        Object.values(layerControl1._layers).forEach(layer => {
+            console.log('Layer name:', layer.name, 'Full path:', layer.layer.fullPath);
+        });
+
         // Zoom to the selected reference ortho
-        const selectedLayer = Object.values(layerControl1._layers).find(layer => layer.name === activeReferenceOrtho);
+        const selectedLayer = Object.values(layerControl1._layers).find(layer => layer.layer.fullPath === activeReferenceOrtho);
         if (selectedLayer) {
             map1.fitBounds(selectedLayer.layer.getBounds());
+        } else {
+            // Debugging: Log if the layer is not found
+            console.log('Layer not found for:', activeReferenceOrtho);
         }
     });
 
-    // Dropdown selectors for GeoJSON files
+    
     document.getElementById('shp-select').addEventListener('change', function() {
         activeReferenceSHP = this.value;
-
-        // Zoom to the selected reference GeoJSON
-        const selectedLayer = geojsonLayers[activeReferenceSHP];
-        if (selectedLayer) {
-            map1.fitBounds(selectedLayer.getBounds());
-        }
+    
+        // Send the active SHP file to the backend to get accessions
+        fetch('/get-accessions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ shp_file: activeReferenceSHP })
+        })
+        .then(response => response.json())
+        .then(result => {
+            updateAccessionList(result.accessions); // Update the accession list
+            window.shpFile = result.shp_file; // Store the shp_file globally
+        })
+        .catch(error => console.error('Error:', error));
     });
+
+    // Function to update the accession list
+    function updateAccessionList(accessions) {
+        const accessionList = document.getElementById('accession-items');
+        accessionList.innerHTML = ''; // Clear the existing list
+
+        accessions.forEach(accession => {
+            const listItem = document.createElement('li');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = accession;
+            checkbox.id = `accession-${accession}`;
+
+            const label = document.createElement('label');
+            label.htmlFor = `accession-${accession}`;
+            label.textContent = accession;
+
+            listItem.appendChild(checkbox);
+            listItem.appendChild(label);
+            accessionList.appendChild(listItem);
+        });
+    }
+
+    // Function to get selected accessions
+    function getSelectedAccessions() {
+        const checkboxes = document.querySelectorAll('#accession-items input[type="checkbox"]:checked');
+        return Array.from(checkboxes).map(checkbox => checkbox.value);
+    }
+
 
     // Add event listener to send selected polygons button
     document.getElementById('send-selected-polygons').addEventListener('click', function() {
@@ -554,6 +623,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Reload the GeoJSON files
         loadGeoJSONFiles();
+
+        initializeEmptyCharts();
     }
 
     // Function to clear all GeoJSON layers from the map
@@ -646,7 +717,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             console.log('base name is', baseName);
                             // Split the base name by underscores and extract the second and third strings
                             const parts = baseName.split('_');
-                            const displayName = parts.slice(1, 3).join('_');
+                            //const displayName = parts.slice(1, 3).join('_');
+
+                            const displayName = parts[1] + '_' + parts[2];
     
                             console.log('display name is', displayName);
     
@@ -655,7 +728,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             shpSelect.appendChild(option);
     
                             // Add to layer control
-                            layerControl1.addOverlay(layer, displayName);
+                            //layerControl1.addOverlay(layer, displayName);
     
                             // Optionally, adjust the map view to fit the loaded GeoJSON
                             map1.fitBounds(layer.getBounds());
@@ -666,17 +739,23 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.error('Error fetching list of GeoJSON files:', error));
     }
 
-
+    // Function to send selected polygons and accessions to the backend
     function sendSelectedPolygons() {
         console.log('hello'); // Print hello when the button is clicked
-    
+
+        if (selectedPlots.length === 0 && getSelectedAccessions().length === 0) {
+            console.error('No plots or accessions selected');
+            return;
+        }
+
         const data = {
-            selectedPlots: selectedPlots
+            selectedPlots: selectedPlots.length > 0 ? selectedPlots : null,
+            selectedAccessions: getSelectedAccessions().length > 0 ? getSelectedAccessions() : null,
+            shp_file: window.shpFile // Include the shp_file
         };
-    
-        console.log('Sending selected plots list data to the backend:', data);
-        console.log('Selected plots list:', selectedPlots);
-    
+
+        console.log('Sending selected data to the backend:', data);
+
         // Fetch selected polygons data
         fetch('/process-selected-polygons', {
             method: 'POST',
@@ -694,9 +773,100 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('ALL Results:', allResults);
             updateChart(selectedResults, 'Band_6_max');
             updateHistogramChart(allResults, 'Band_6_max');
+
+            // Check if filtered_geojson is provided in the response
+            if (result.filtered_geojson) {
+                const filteredGeoJSON = JSON.parse(result.filtered_geojson);
+                if (filteredGeoJSON.type === 'FeatureCollection' && Array.isArray(filteredGeoJSON.features)) {
+                    reloadGeoJSONLayer(filteredGeoJSON);
+                    console.log('Filtered GeoJSON:', filteredGeoJSON);
+                } else {
+                    console.error('Invalid GeoJSON format:', filteredGeoJSON);
+                }
+            }
         })
         .catch(error => console.error('Error:', error));
     }
+
+    // Function to reload the specific GeoJSON layer on the map
+    function reloadGeoJSONLayer(geojsonData) {
+        // Find and remove the existing layer for the shp_file
+        map1.eachLayer(function(layer) {
+            if (layer instanceof L.GeoJSON && layer.options.shpFile === window.shpFile) {
+                map1.removeLayer(layer);
+            }
+        });
+
+        // Add the new GeoJSON layer with selected plots highlighted in red
+        const layer = L.geoJSON(geojsonData, {
+            style: function(feature) {
+                return {
+                    color: feature.properties.selected ? 'red' : 'blue'
+                };
+            },
+            onEachFeature: function(feature, layer) {
+                layer.on('mouseover', function(e) {
+                    const properties = feature.properties;
+                    let popupContent = '<div>';
+                    for (let key in properties) {
+                        popupContent += `<strong>${key}:</strong> ${properties[key]}<br>`;
+                    }
+                    popupContent += '</div>';
+                    layer.bindPopup(popupContent).openPopup();
+                });
+
+                layer.on('mouseout', function(e) {
+                    // Close the popup
+                    layer.closePopup();
+                });
+            },
+            shpFile: window.shpFile // Store the shp_file in the layer options for identification
+        }).addTo(map1);
+
+        // Fit the map view to the bounds of the new GeoJSON layer
+        map1.fitBounds(layer.getBounds());
+    }
+
+
+
+
+    // Function to send selected polygons and accessions to the backend
+//     function sendSelectedPolygons() {
+//         console.log('hello'); // Print hello when the button is clicked
+
+//         if (selectedPlots.length === 0 && getSelectedAccessions().length === 0) {
+//             console.error('No plots or accessions selected');
+//             return;
+//         }
+
+//         const data = {
+//             selectedPlots: selectedPlots.length > 0 ? selectedPlots : null,
+//             selectedAccessions: getSelectedAccessions().length > 0 ? getSelectedAccessions() : null,
+//             shp_file: window.shpFile // Include the shp_file
+//         };
+
+//         console.log('Sending selected data to the backend:', data);
+
+//         // Fetch selected polygons data
+//         fetch('/process-selected-polygons', {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify(data)
+//         })
+//         .then(response => response.json())
+//         .then(result => {
+//             console.log('Statistics:', result);
+//             selectedResults = JSON.parse(result.selected_plots); // Store the selected plots data in the global results object
+//             console.log('Results:', selectedResults);
+//             allResults = JSON.parse(result.all_plots); // Store the all plots data in the global allPlotsResult object
+//             console.log('ALL Results:', allResults);
+//             updateChart(selectedResults, 'Band_6_max');
+//             updateHistogramChart(allResults, 'Band_6_max');
+//         })
+//         .catch(error => console.error('Error:', error));
+//     }
 
     // Add event listener to the y-variable dropdown
     document.getElementById('y-variable-select').addEventListener('change', function() {
@@ -731,4 +901,3 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-

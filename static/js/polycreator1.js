@@ -42,63 +42,6 @@ let initialPositions = [];
 var geojsonLayer = null; // This will hold the GeoJSON layer
 var createdGeoJSON = null; // Variable to store the created GeoJSON
 
-
-
-// // Function to load the GeoDataFrame object into the map view
-// function loadGdfObject(geojson) {
-//     console.log('Received GeoJSON:', geojson);
-
-//     // Clear the existing GeoJSON layer if it exists
-//     if (geojsonLayer) {
-//         map1.removeLayer(geojsonLayer);
-//     }
-
-//     // Load the GeoJSON into the map view
-//     geojsonLayer = L.geoJSON(JSON.parse(geojson), {
-//         onEachFeature: function (feature, layer) {
-//             layer.on('pm:edit', function (e) {
-//                 console.log('Feature edited:', e.target.feature);
-//                 updateEditedObject(e.target.feature, feature.id);
-//             });
-//         }
-//     }).addTo(map1);
-
-//     // Enable editing on the layer
-//     geojsonLayer.eachLayer(function (layer) {
-//         layer.pm.enable();
-//     });
-
-//     // Store the created GeoJSON
-//     createdGeoJSON = geojsonLayer.toGeoJSON();
-
-//     // Log the initial state of the geojsonLayer
-//     console.log('Initial geojsonLayer:', geojsonLayer.toGeoJSON());
-// }
-
-
-// function updateEditedObject(editedFeature, originalId) {
-//     console.log('Updating GeoJSON for feature:', editedFeature);
-
-//     var geojson = geojsonLayer.toGeoJSON();
-//     for (var i = 0; i < geojson.features.length; i++) {
-//         if (geojson.features[i].id === originalId) {
-//             geojson.features[i].geometry = editedFeature.geometry;
-//             geojson.features[i].id = originalId; // Ensure the original ID is retained
-//             break;
-//         }
-//     }
-
-//     createdGeoJSON = geojson;
-//     createdGeoJSON.crs = {
-//         type: "name",
-//         properties: {
-//             name: "EPSG:4326"
-//         }
-//     };
-
-//     console.log('Updated GeoJSON object:', createdGeoJSON);
-// }
-
 function loadGdfObject(geojson) {
     console.log('Received GeoJSON:', geojson);
 
@@ -110,20 +53,8 @@ function loadGdfObject(geojson) {
     // Load the GeoJSON into the map view
     geojsonLayer = L.geoJSON(JSON.parse(geojson), {
         onEachFeature: function (feature, layer) {
-            // Add mouseover event to display attributes
-            layer.on('mouseover', function (e) {
-                var popupContent = '<b>Attributes:</b><br>';
-                for (var key in feature.properties) {
-                    popupContent += key + ': ' + feature.properties[key] + '<br>';
-                }
-                layer.bindPopup(popupContent).openPopup(e.latlng);
-            });
-
-            // Add mouseout event to hide the popup
-            layer.on('mouseout', function (e) {
-                layer.closePopup();
-            });
-
+            // Add mouseover event to display attribute
+        
             // Preserve existing pm:edit event
             layer.on('pm:edit', function (e) {
                 console.log('Feature edited:', e.target.feature);
@@ -167,6 +98,7 @@ function updateEditedObject(editedFeature, originalId) {
     console.log('Updated GeoJSON object:', createdGeoJSON);
 }
 
+
 // Capture selected polygons
 map1.on('pm:create', function (e) {
     if (e.shape === 'Rectangle') {
@@ -193,6 +125,7 @@ map1.on('pm:create', function (e) {
         map1.removeLayer(e.layer); // Remove the rectangle after selection
     }
 });
+
 
 
 // Add custom button to enable dragging and start dragging for selected polygons
@@ -340,7 +273,6 @@ function redrawPolygons() {
     console.log('Redrawn polygons with updated positions:', geojsonLayer.toGeoJSON());
 }
 
-
 // Add custom button to enable rotating and start rotating for selected polygons
 map1.pm.Toolbar.createCustomControl({
     name: 'customRotate',
@@ -484,30 +416,30 @@ map1.pm.Toolbar.createCustomControl({
     }
 });
 
-// Function to redraw polygons with updated positions
-function redrawPolygons() {
-    // Clear the existing GeoJSON layer
-    if (geojsonLayer) {
-        map1.removeLayer(geojsonLayer);
-    }
+// // Function to redraw polygons with updated positions
+// function redrawPolygons() {
+//     // Clear the existing GeoJSON layer
+//     if (geojsonLayer) {
+//         map1.removeLayer(geojsonLayer);
+//     }
 
-    // Reload the GeoJSON into the map view with updated positions
-    geojsonLayer = L.geoJSON(createdGeoJSON, {
-        onEachFeature: function (feature, layer) {
-            layer.on('pm:edit', function (e) {
-                console.log('Feature edited:', e.target.feature);
-                updateEditedObject(e.target.feature, feature.id);
-            });
-        }
-    }).addTo(map1);
+//     // Reload the GeoJSON into the map view with updated positions
+//     geojsonLayer = L.geoJSON(createdGeoJSON, {
+//         onEachFeature: function (feature, layer) {
+//             layer.on('pm:edit', function (e) {
+//                 console.log('Feature edited:', e.target.feature);
+//                 updateEditedObject(e.target.feature, feature.id);
+//             });
+//         }
+//     }).addTo(map1);
 
-    // Enable editing on the layer
-    geojsonLayer.eachLayer(function (layer) {
-        layer.pm.enable();
-    });
+//     // Enable editing on the layer
+//     geojsonLayer.eachLayer(function (layer) {
+//         layer.pm.enable();
+//     });
 
-    console.log('Redrawn polygons with updated positions:', geojsonLayer.toGeoJSON());
-}
+//     console.log('Redrawn polygons with updated positions:', geojsonLayer.toGeoJSON());
+// }
 // Function to redraw polygons with updated positions
 function redrawPolygons() {
     // Clear the existing GeoJSON layer
@@ -667,6 +599,12 @@ document.getElementById('ortho-select').addEventListener('change', function() {
     // Debugging: Log the activeReferenceOrtho
     console.log('Selected ortho:', activeReferenceOrtho);
 
+    // Print all layers' full paths for debugging
+    console.log('All layers in layerControl1:');
+    Object.values(layerControl1._layers).forEach(layer => {
+        console.log('Layer name:', layer.name, 'Full path:', layer.layer.fullPath);
+    });
+
     // Zoom to the selected reference ortho
     const selectedLayer = Object.values(layerControl1._layers).find(layer => layer.layer.fullPath === activeReferenceOrtho);
     if (selectedLayer) {
@@ -677,34 +615,10 @@ document.getElementById('ortho-select').addEventListener('change', function() {
     }
 });
 
-// var initialCorner = null;
-// var directionPoint = null;
-
-// document.getElementById('capture-coords-button').addEventListener('click', function() {
-//     map1.on('click', function(e) {
-//         if (!initialCorner) {
-//             initialCorner = e.latlng;
-//             L.marker(initialCorner, { icon: dotIcon }).addTo(map1).bindPopup('Initial Corner').openPopup();
-//             alert('Initial corner set. Now click to set the direction point.');
-//         } else if (!directionPoint) {
-//             directionPoint = e.latlng;
-//             L.marker(directionPoint, { icon: dotIcon }).addTo(map1).bindPopup('Direction Point').openPopup();
-//             alert('Direction point set. Coordinates captured successfully.');
-//             map1.off('click'); // Remove the click event listener after capturing both points
-//         }
-//     });
-// });
-
-// // Function to reset markers
-// function resetMarkers() {
-//     initialCorner = null;
-//     directionPoint = null;
-//     console.log('Markers reset');
-//     // Additional code to remove markers from the map if needed
-// }
-
 var initialCornerMarker = null;
 var directionPointMarker = null;
+var initialCorner = null;
+var directionPoint = null;
 
 document.getElementById('capture-coords-button').addEventListener('click', function() {
     map1.on('click', function(e) {

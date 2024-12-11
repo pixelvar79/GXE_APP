@@ -1,6 +1,6 @@
 
 
-
+<!-- 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,11 +38,12 @@
             <div class="charts-container">
                 <div class="chart-container">
 
-                    <h2> Plot Level Analysis</h2>  
+                    <h2> Plot Level</h2>  
                     <canvas id="resultChart"></canvas>
                 </div>
+                
                 <div class="chart-container">
-                    <h2> Whole Field Trial Analysis</h>  
+                    <h2> Whole Field Trial</h>  
                     <canvas id="histogramChart"></canvas>
                 </div>
             </div>
@@ -71,8 +72,139 @@
                 <ul id="layers-list"></ul>
             </div>
             <div id="selected-plots"></div>
+
+            <div id="accession-list">
+                <h3>Accessions available for active trial:</h3>
+                <div class="dropdown">
+                    <button class="dropbtn tab">Select Accessions</button>
+                    <div class="dropdown-content" id="accession-items"></div>
+                </div>
+            </div>
         </div>
     </div>
     <script src="/static/js/plotvisualizer.js"></script>
 </body>
 </html>
+ -->
+
+
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Plot Trial Analyzer</title>
+     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+     <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" />  
+     <link rel="stylesheet" href="/static/css/styleplot.css" />
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-measure/dist/leaflet-measure.css" />
+     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+     <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>  
+     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+     <script src="https://cdn.jsdelivr.net/npm/leaflet-measure/dist/leaflet-measure.js"></script>
+     <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.0.0"></script>
+     
+ </head>
+ <body>
+    <div class="header">
+        <div class="top-left-container">
+            <img src="static/img/cabbi.jpg" alt="New Image" class="top-left-img">
+        </div>
+        <h1>Plot Trial Analyzer</h1>
+        <div class="top-right-container">
+            <img src="static/img/logo1.png" alt="New Image" class="top-right-img">
+        </div>
+    </div>
+    <div class="container">
+        <div class="left-column">
+            <h2>Visualizer</h2>
+            <div id="map1" class="map">
+                <div id="loading-message1" class="loading-message">Loading files...</div>
+            </div>
+        </div>
+
+        <div class="center-column">
+            <div class="charts-container">
+                <div class="chart-container">
+                    <h2> Plot Level</h2>  
+                    <canvas id="resultChart"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <h2> Whole Field Trial</h2>  
+                    <canvas id="histogramChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-column" id="automated-controls">
+            <h2>Setup Directories and Active Layers</h2>
+            <input type="file" id="folder-input" webkitdirectory directory multiple style="display: none;">
+            <button id="upload-button" class="tab button-full-width">Set Input Folder</button>
+            <!-- <label for="ortho-select">Indicate Active Field Trial Image:</label>
+            <select id="ortho-select" class="tab button-full-width"></select> -->
+            <button class="tab button-full-width">
+                Indicate Active Trial Image:
+                <select id="ortho-select" class="tab button-full-width"></select>
+            <!-- <label for="shp-select">Indicate Active Field Trial Polygons:</label>
+            <select id="shp-select" class="tab button-full-width"></select> -->
+            <button class="tab button-full-width">
+                Indicate Active Trial Grid:
+                <select id="shp-select" class="tab button-full-width"></select>
+            </button>
+            <h2>Analysis Controller</h2>
+
+            <!-- New section for displaying Accession values -->
+            <div id="accession-list">
+                <div class="dropdown">
+                    <button class="dropbtn tab button-full-width">Accessions available:</button> <!-- Apply the 'tab' and 'button-full-width' classes here -->
+                    <div class="dropdown-content" id="accession-items"></div>
+                </div>
+            </div>
+
+            <div id="date-list">
+                <div class="dropdown">
+                    <button class="dropbtn tab button-full-width">Dates available:</button> <!-- Apply the 'tab' and 'button-full-width' classes here -->
+                    <div class="dropdown-content" id="date-items"></div>
+                </div>
+            </div>
+
+            <button class="tab button-full-width">
+                Select Variable for Charts:
+                <select id="y-variable-select" class="tab button-full-width">
+                    <option value="Band_6_max">Canopy Height (m)</option>
+                    <option value="NDVI_max">NDVI (Normalized Difference Vegetation Index)</option>
+                    <option value="NDRE_max">NDRE (Normalized Difference Red Edge)</option>
+                    <option value="fcover">Fraction of Green Cover (%)</option>
+                </select>
+            </button>
+
+            <button onclick="resetSelectedPolygons()" class="tab button-full-width">Reset Selection</button>
+            <button id="send-selected-polygons" class="tab button-full-width">Analyze</button>
+
+            <!-- <label for="y-variable-select">Select Variable for Charts: </label>
+            <select id="y-variable-select" class="tab button-full-width">
+                <option value="Band_6_max">Canopy Height (m)</option>
+                <option value="NDVI_max">NDVI (Normalized Difference Vegetation Index) </option>
+                <option value="NDRE_max">NDRE (Normalized Difference Red Edge) </option>
+                <option value="fcover">Fraction of Green Cover (%) </option>
+            </select> -->
+            
+
+
+            <div id="layers-panel">
+                <h3 class="hidden">Loaded PNGs</h3>
+                <ul id="layers-list"></ul>
+            </div>
+            <div id="selected-plots"></div>
+
+            
+        </div>
+    </div>
+    <script src="/static/js/plotvisualizer.js"></script>
+ </body>
+ </html>
