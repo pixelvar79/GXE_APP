@@ -45,7 +45,7 @@ body {
 .banner {
     display: flex;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px; /* Increase margin to add more space below the banner */
 }
 
 .banner-img {
@@ -81,78 +81,117 @@ h1 {
     color: #333;
 }
 
-.tabs {
+/* Carousel styles */
+.carousel-container {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 400px; /* Adjust the height as needed to fit multiple items */
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
+    flex-direction: column; /* Ensure the items are arranged vertically */
+}
+
+.tabs {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 400px; /* Adjust the height as needed to fit multiple buttons */
+    display: flex;
+    flex-direction: column; /* Ensure the items are arranged vertically */
+}
+
+.tabs::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+}
+
+.scroll-area {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50px; /* Adjust the width as needed */
+    z-index: 1;
+}
+
+.scroll-area.left {
+    left: 0;
+}
+
+.scroll-area.right {
+    right: 0;
 }
 
 .tab {
-    padding: 30px 40px; /* Increase padding for larger tabs */
+    padding: 20px 30px; /* Adjust padding for larger tabs */
     margin: 10px;
     background-color: #134813;
     color: white;
     border: none;
     border-radius: 5px;
     text-decoration: none;
-    font-size: 1.8em; /* Increase font size */
+    font-size: 1.2em; /* Adjust font size */
     font-weight: bold; /* Add bold font */
     transition: background-color 0.3s, transform 0.3s;
-    flex: 1 1 calc(33.333% - 40px); /* Adjust the width of the tabs */
+    flex: 0 0 auto; /* Ensure tabs do not shrink */
     box-sizing: border-box;
-    animation: highlight 16s infinite; /* Add animation */
+    
 }
 
 .tab:hover {
-    background-color: #134813;
+    background-color: #1a5e1a; /* Lighter color for hover state */
     transform: scale(1.10);
 }
 
 .tab:active {
-    background-color: #134813;
+    background-color: #1f7a1f; /* Lighter color for active state */
 }
-
-/* New styles for the top-right image */
-.top-right-container {
+.bottom-left-container {
     position: absolute;
-    bottom: 0px; /* Add some distance from the top border */
-    left: 10px; /* Add some distance from the right border */
+    bottom: 10px; /* Add some distance from the bottom border */
+    left: 10px; /* Add some distance from the left border */
     padding: 10px; /* Optional: Add some padding around the image */
 }
 
-.top-right-img {
-    width: 150px; /* Adjust the width as needed */
+.bottom-left-img {
+    width: 200px; /* Increase the width */
     height: auto;
 }
 
 .bottom-right-container {
     position: absolute;
-    bottom: 0px; /* Add some distance from the top border */
+    bottom: 5px; /* Add some distance from the bottom border */
     right: 10px; /* Add some distance from the right border */
     padding: 10px; /* Optional: Add some padding around the image */
 }
 
 .bottom-right-img {
-    width: 150px; /* Adjust the width as needed */
+    width: 200px; /* Increase the width */
     height: auto;
 }
 
-/* Keyframes for the highlight animation
-@keyframes highlight {
-    0%, 100% { background-color: #134813; }
-    12.5%, 25% { background-color: #1e6b1e; }
-    37.5%, 50% { background-color: #134813; }
-    62.5%, 75% { background-color: #1e6b1e; }
-    87.5% { background-color: #134813; }
+/* Additional styles for Swiper */
+.swiper-container {
+    width: 50%;
+    height: 50vh; /* Make the swiper container fit the viewport height */
+    box-sizing: border-box;
 }
 
-/* Specific timing for each tab */
-/* .tabs .tab:nth-child(1) { animation-delay: 0s; }
-.tabs .tab:nth-child(2) { animation-delay: 2s; }
-.tabs .tab:nth-child(3) { animation-delay: 4s; }
-.tabs .tab:nth-child(4) { animation-delay: 6s; }
-.tabs .tab:nth-child(5) { animation-delay: 8s; }
-.tabs .tab:nth-child(6) { animation-delay: 10s; }
-.tabs .tab:nth-child(7) { animation-delay: 12s; }
-.tabs .tab:nth-child(8) { animation-delay: 14s; } */ 
+.swiper-wrapper {
+    display: flex;
+    align-items: center;
+    height: 50%;
+}
+
+.swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+    width: auto; /* Ensure slides do not stretch */
+    height: auto; /* Ensure slides do not stretch */
+}
+
+.swiper-slide-active {
+    transform: scale(1.2);
+}

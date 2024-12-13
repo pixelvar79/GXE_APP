@@ -1,18 +1,39 @@
-body {
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
     font-family: Arial, sans-serif;
-    margin: 20px;
 }
 
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+/* 
 h1 {
     font-size: 2em;
     margin-bottom: 20px;
+    text-align: center;
+} */
+
+.centered-title {
+    text-align: center;
+    width: 100%;
 }
 
 .container {
     width: 100%;
     display: flex;
+    justify-content: space-between; /* Ensure content and logo are side by side */
+    align-items: center; /* Center items vertically */
+    padding: 20px;
+}
+
+.content-container {
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
     gap: 10px;
 }
 
@@ -27,27 +48,38 @@ input[type="text"] {
 }
 
 button {
-    font-size: 1.2em;
-    padding: 10px 20px;
+    padding: 20px 30px; /* Adjust padding for larger tabs */
+    margin: 10px;
+    background-color: #134813;
     color: white;
-    background-color: #007BFF;
     border: none;
     border-radius: 5px;
-    cursor: pointer;
+    text-decoration: none;
+    font-size: 1.2em; /* Adjust font size */
+    font-weight: bold; /* Add bold font */
+    transition: background-color 0.3s, transform 0.3s;
+    flex: 0 0 auto; /* Ensure tabs do not shrink */
+    box-sizing: border-box;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #1a5e1a; /* Lighter color for hover state */
+    transform: scale(1.10);
+}
+
+.button-container {
+    display: flex;
+    gap: 10px; /* Add space between buttons */
 }
 
 .content {
     display: flex;
     width: 100%;
-    height: calc(100vh - 200px); /* Adjust height based on your needs */
+    height: calc(100vh - 300px); /* Adjust height based on your needs */
 }
 
 #console-container {
-    width: 50%;
+    width: 100%;
     height: 100%;
     overflow-y: auto;
 }
@@ -60,11 +92,63 @@ button:hover {
 }
 
 #map-container {
-    width: 50%;
-    height: 100%;
+    width: 100%;
+    height: calc(100vh - 300px); /* Adjust height based on your needs */
+    flex-grow: 1; /* Allow map-container to grow and take available space */
 }
 
 #map {
     height: 100%;
     width: 100%;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    padding: 10px 0; /* Add padding for better spacing */
+}
+
+.dropdown-content label {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px; /* Add padding for better spacing */
+    cursor: pointer;
+}
+
+.dropdown-content input {
+    margin-right: 10px; /* Add margin to the right of the checkbox */
+}
+
+.dropdown-content input:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center; /* Center the logo vertically */
+    padding-right: 60px; /* Add padding to the right edge */
+}
+
+.banner-img {
+    width: 250px; /* Increase the size as needed */
+    height: auto;
+    margin-right: 20px; /* Add margin to the right edge */
+}
+
+.flip {
+    display: inline-block;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.flip:hover {
+    transform: rotateY(360deg);
 }

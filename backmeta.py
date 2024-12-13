@@ -122,11 +122,13 @@ def metashape_api():
     data = request.json
     input_dir = data.get('inputDir')
     output_dir = data.get('outputDir')
+    output_types = data.get('outputTypes', [])
 
     if not input_dir or not output_dir:
         return jsonify({'success': False, 'message': 'Input and output directories are required.'}), 400
 
     try:
+        #results = process_metashape(input_dir, output_dir, output_types, log_messages)
         results = process_metashape(input_dir, output_dir, log_messages)
         processed_results = []
         for result in results:

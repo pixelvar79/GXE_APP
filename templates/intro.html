@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -15,7 +15,7 @@
             <img src="static/img/harvester2.jpg" alt="Harvester" class="banner-img">
         </div>
         
-        <h1>Welcome to the Analysis Portal of Aerial Data in Bioenergy Crops</h1>
+        <h1>Welcome to the Analysis Portal of Aerial Data</h1>
         <div class="top-right-container">
             <img src="static/img/cabbi.jpg" alt="New Image" class="top-right-img">
         </div>
@@ -25,15 +25,61 @@
         </div>
 
         <div class="tabs">
-            <a href="processodm.html" class="tab">Raw to ORTHO with PyODM</a>
+            <a href="processodm.html" class="tab">Flight data Stitcher</a>
             <a href="reprojecttif.html" class="tab">Reproject ORTHO</a>
             <a href="preprocessing1.html" class="tab">Terrain normalization & image stacking</a>
             <a href="shiftcorrector.html" class="tab">XYZ Corrector</a>
             <a href="polygon_creator.html" class="tab">Field-trial builder</a>
-            <a href="tabular_stats.html" class="tab">Plot stats & export data</a>
             <a href="mapvisualization.html" class="tab">Plot visualization & temporal dynamics</a>
             <a href="insights.html" class="tab">Data insights: Machine Learning </a>
         </div>
     </div>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intro</title>
+    <link rel="stylesheet" href="/static/css/styleintro.css">
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+</head>
+<body>
+    <div class="general-title"><em class="flip">pyFlyAnalyzer</em></div>
+    <div class="container">
+        <h1>Welcome to the Analysis Portal of Aerial Data</h1>
+        <div class="banner">
+            <img src="static/img/drone2.png" alt="Harvester" class="banner-img">
+            <img src="static/img/logo.png" alt="Logo" class="banner-img">
+            <img src="static/img/harvester2.jpg" alt="Harvester" class="banner-img">
+        </div>
+        
+        <div class="bottom-left-container">
+            <img src="static/img/cabbi.jpg" alt="New Image" class="bottom-left-img">
+        </div>
+
+        <div class="bottom-right-container">
+            <img src="static/img/logo1.png" alt="New Image" class="bottom-right-img">
+        </div>
+
+        <div class="carousel-container">
+            <div class="scroll-area left" onmouseover="startScroll(-1)" onmouseout="stopScroll()"></div>
+            <div class="tabs">
+                <a href="metashape.html" class="tab">Flight Data Stitcher</a>
+                <a href="reprojecttif.html" class="tab">Preprocessing & Stacking Layers</a>
+                <!-- <a href="reprojecttif.html" class="tab">Reproject ORTHO</a>
+                <a href="preprocessing1.html" class="tab">Terrain normalization & stacking</a>
+                <a href="shiftcorrector.html" class="tab">XYZ Corrector</a> -->
+                <a href="polygon_creator.html" class="tab">Field Trial Builder & Visualization</a>
+                <!-- <a href="mapvisualization.html" class="tab">Plot Visualization & Temporal Dynamics</a> -->
+                <a href="insights.html" class="tab">Traits Prediction via Machine Learning</a>
+            </div>
+            <div class="scroll-area right" onmouseover="startScroll(1)" onmouseout="stopScroll()"></div>
+        </div>
+    </div>
+    <script src="/static/js/carousel.js"></script>
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 </body>
 </html>
