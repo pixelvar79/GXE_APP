@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Normalization of CSM and stacking</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="/static/css/stylenorm.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <!-- <h1>CSM normalization, resample, and stacking of aerial data</h1> -->
+    <div class="container">
+        <div id="map">
+            <div id="loading-message" class="loading-message">Processing...</div>
+        </div>
+
+        <div class="controls" id="manual-controls">
+            <h2>Processing</h2>
+            <input type="file" id="folder-input" webkitdirectory directory multiple style="display: none;">
+            <button id="upload-button" class="tab">Set Input Folder</button>
+            <label for="ortho-select">Select Active Ortho Image:</label>
+            <select id="ortho-select" class="tab"></select>
+            <label for="dtm-select">Select Active DTM (CSM) Image:</label>
+            <select id="dtm-select" class="tab"></select>
+            <button id="zoom-button" class="tab">Zoom to Active Layer</button>
+            <button id="end-collection-button" class="tab">End Collection</button>
+            <button id="reset-button" class="tab">Reset Marks</button>
+            <button id="corner-button" class="tab">Add Reference Corners for Mask</button>
+            <button id="interpolate-button" class="tab">Process</button>
+        </div>
+    </div>
+    
+    <div id="message" class="message"></div>
+
+    <script src="static/js/norm_stack.js"></script>
+</body>
+</html>

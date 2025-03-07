@@ -60,11 +60,15 @@ h1 {
     margin-bottom: 10px;
 }
 
-.controls h2, .form-container h2 {
-    margin-bottom: 20px;
+.controls, .form-container {
+    flex: 1;
+    padding: 20px;
+    background-color: #fff;
+    margin-bottom: 10px;
+    padding: 10px; /* Add padding to the next lower level divs */
 }
 
-.tab {
+.tab, .dropbtn {
     padding: 10px 20px;
     margin: 10px;
     background-color: #134813;
@@ -76,14 +80,15 @@ h1 {
     font-weight: bold;
     transition: background-color 0.3s, transform 0.3s;
     cursor: pointer;
+    white-space: nowrap; /* Prevent text from wrapping */
 }
 
-.tab:hover {
+.tab:hover, .dropbtn:hover {
     background-color: #0f3b0f;
     transform: scale(1.05);
 }
 
-.tab:active {
+.tab:active, .dropbtn:active {
     background-color: #0c2e0c;
 }
 
@@ -130,7 +135,6 @@ h1 {
     color: black;
 }
 
-
 /* Increase the size of zoom controls and editing tools */
 .leaflet-control-zoom-in, .leaflet-control-zoom-out, .leaflet-draw-toolbar a {
     font-size: 1.5em;
@@ -156,33 +160,48 @@ h1 {
     font-size: 2em;
 }
 
-.leaflet-pm-icon-custom-drag {
-    background-image: url('path/to/your/custom-icon.png'); /* Replace with the path to your custom icon */
-    background-size: 16px 16px;
-    width: 30px;
-    height: 30px;
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 260px;
+    max-height: 400px; /* Set a maximum height for the dropdown */
+    overflow-y: auto; /* Enable vertical scrolling */
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    padding: 10px; /* Add padding to the dropdown content */
+}
+
+.dropdown-content label {
     display: flex;
     align-items: center;
-    justify-content: center;
+    padding: 5px 10px; /* Add padding for better spacing */
+    cursor: pointer;
 }
-.leaflet-pm-icon-custom-drag::after {
-    content: 'Drag';
-    font-size: 12px;
-    color: black;
-    margin-left: 5px;
+
+.dropdown-content input {
+    margin-right: 10px; /* Add margin to the right of the checkbox */
 }
-    .leaflet-pm-icon-custom-rotate {
-    background-image: url('path/to/your/custom-icon.png'); /* Replace with the path to your custom icon */
-    background-size: 16px 16px;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+
+.dropdown-content input:hover {
+    background-color: #f1f1f1;
 }
-.leaflet-pm-icon-custom-rotate::after {
-    content: 'Rotate';
-    font-size: 12px;
-    color: black;
-    margin-left: 5px;
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+    background-color: #0c2e0c;
+}
+
+/* Ensure all buttons in the right column have the same width */
+.button-full-width {
+    width: 100%;
+    box-sizing: border-box; /* Include padding and border in the element's total width */
 }

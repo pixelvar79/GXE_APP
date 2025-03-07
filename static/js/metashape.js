@@ -1,5 +1,4 @@
 // let selectedInputDir = "";
-// let selectedOutputDir = "";
 // let map1;
 // let layerControl;
 // const layers = {};
@@ -32,7 +31,20 @@
 // };
 
 // document.getElementById("submitBtn").onclick = function() {
+//     // const outputDir = document.getElementById("outputDir").value.trim();
+//     // if (selectedInputDir === "" || outputDir === "") {
+//     //     console.error("Please select an input directory and enter an output directory.");
+//     //     return;
+//     // }
+
+//     // const requestData = {
+//     //     inputDir: selectedInputDir,
+//     //     outputDir: outputDir
+//     // };
+//     console.clear();
+
 //     const outputDir = document.getElementById("outputDir").value.trim();
+//     const outputTypes = Array.from(document.querySelectorAll('input[name="outputType"]:checked')).map(cb => cb.value);
 //     if (selectedInputDir === "" || outputDir === "") {
 //         console.error("Please select an input directory and enter an output directory.");
 //         return;
@@ -40,7 +52,9 @@
 
 //     const requestData = {
 //         inputDir: selectedInputDir,
-//         outputDir: outputDir
+//         outputDir: outputDir,
+//         outputTypes: outputTypes
+//         //logMessages: [] // Initialize an empty array for log messages
 //     };
 
 //     console.log("Request Data:", requestData);
@@ -158,7 +172,6 @@
 //                           '#FFEDA0';
 // }
 
-
 let selectedInputDir = "";
 let map1;
 let layerControl;
@@ -192,9 +205,7 @@ document.getElementById("selectInputDirBtn").onclick = function() {
 };
 
 document.getElementById("submitBtn").onclick = function() {
-    // Clear the console content
-    const consoleDiv = document.getElementById('console');
-    consoleDiv.innerHTML = "";
+    console.clear();
 
     const outputDir = document.getElementById("outputDir").value.trim();
     const outputTypes = Array.from(document.querySelectorAll('input[name="outputType"]:checked')).map(cb => cb.value);
@@ -206,8 +217,7 @@ document.getElementById("submitBtn").onclick = function() {
     const requestData = {
         inputDir: selectedInputDir,
         outputDir: outputDir,
-        outputTypes: outputTypes,
-        logMessages: [] // Initialize an empty array for log messages
+        outputTypes: outputTypes
     };
 
     console.log("Request Data:", requestData);
@@ -222,11 +232,7 @@ document.getElementById("submitBtn").onclick = function() {
     .then(response => response.json())
     .then(data => {
         console.log("Response from server:", data);
-        if (data.success) {
-            displayMap(data.results);
-        } else {
-            console.error("Error from server:", data.message);
-        }
+        displayMap(data.results);
     })
     .catch(error => {
         console.error("Error sending data to the backend:", error);
@@ -256,9 +262,6 @@ function displayMap(results) {
 
         osm.addTo(map1);
 
-        // Initialize empty layer control
-        layerControl = L.control.layers(null, layers).addTo(map1);
-
         // Add legend to the map
         const legend = L.control({ position: 'bottomright' });
 
@@ -280,13 +283,11 @@ function displayMap(results) {
         legend.addTo(map1);
     }
 
-    let lastLayerBounds;
-
     results.forEach(item => {
         if (item.bounds && item.png_path) {
             const imageBounds = [[item.bounds[0][0], item.bounds[0][1]], [item.bounds[1][0], item.bounds[1][1]]];
             const layer = L.imageOverlay(item.png_path, imageBounds).addTo(map1);
-            lastLayerBounds = imageBounds;
+            map1.fitBounds(imageBounds);
 
             // Extract the base name of the ortho_path
             let baseName = item.ortho_path.split(/[/\\]+/).pop();
@@ -308,15 +309,11 @@ function displayMap(results) {
         }
     });
 
-    // Zoom to the last layer added
-    if (lastLayerBounds) {
-        map1.fitBounds(lastLayerBounds);
-    }
-
-    // Update layer control with new layers
-    if (layerControl) {
-        layerControl.remove();
+    // Add layer control to the map
+    if (!layerControl) {
         layerControl = L.control.layers(null, layers).addTo(map1);
+    } else {
+        layerControl.addOverlay(layers);
     }
 }
 
@@ -330,9 +327,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     osm.addTo(map1);
-
-    // Initialize empty layer control
-    layerControl = L.control.layers(null, layers).addTo(map1);
 });
 
 function getColor(d) {
@@ -341,5 +335,7 @@ function getColor(d) {
                           '#FFEDA0';
 }
 
-
+document.getElementById("outputTypesBtn").onclick = function() {
+    document.querySelector(".dropdown-content").classList.toggle("show");
+}
 

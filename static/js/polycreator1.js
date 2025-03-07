@@ -416,30 +416,6 @@ map1.pm.Toolbar.createCustomControl({
     }
 });
 
-// // Function to redraw polygons with updated positions
-// function redrawPolygons() {
-//     // Clear the existing GeoJSON layer
-//     if (geojsonLayer) {
-//         map1.removeLayer(geojsonLayer);
-//     }
-
-//     // Reload the GeoJSON into the map view with updated positions
-//     geojsonLayer = L.geoJSON(createdGeoJSON, {
-//         onEachFeature: function (feature, layer) {
-//             layer.on('pm:edit', function (e) {
-//                 console.log('Feature edited:', e.target.feature);
-//                 updateEditedObject(e.target.feature, feature.id);
-//             });
-//         }
-//     }).addTo(map1);
-
-//     // Enable editing on the layer
-//     geojsonLayer.eachLayer(function (layer) {
-//         layer.pm.enable();
-//     });
-
-//     console.log('Redrawn polygons with updated positions:', geojsonLayer.toGeoJSON());
-// }
 // Function to redraw polygons with updated positions
 function redrawPolygons() {
     // Clear the existing GeoJSON layer

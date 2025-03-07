@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -123,5 +123,42 @@
             }, 1000); // Poll every second
         }
     </script>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproject TIFF Files</title>
+    <link rel="stylesheet" href="static/css/stylereproject.css">
+    <script src="static/js/reprojecttif.js" defer></script>
+</head>
+<body>
+    <h1>Select Directories for TIFF Reprojection</h1>
+
+    <div class="container">
+        <div>
+            <label for="inputDir">Input Directory:</label>
+            <input type="text" id="inputDir" readonly>
+            <button id="selectInputDirBtn">Select Input Directory</button>
+        </div>
+        <div>
+            <label for="newOutputFolder">New Output Folder Name:</label>
+            <input type="text" id="newOutputFolder" placeholder="Enter new folder name">
+        </div>
+        <div>
+            <label for="targetCRS">Target CRS (EPSG Code):</label>
+            <input type="text" id="targetCRS" placeholder="Enter EPSG code (e.g., 4326)">
+        </div>
+        <button id="submitBtn">Submit for Reprojection</button>
+        <div id="progress-container">
+            <label for="progress-bar">Progress:</label>
+            <progress id="progress-bar" value="0" max="100"></progress>
+            <span id="progress-text">0%</span>
+        </div>
+    </div>
 </body>
 </html>
